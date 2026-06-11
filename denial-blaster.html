@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>DENIAL BLASTER — Revenue Cycle Quest</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@500;700&display=swap');
+
+  :root{
+    --crt-deep:#06061c;
+    --crt-navy:#0b0e3a;
+    --phosphor:#27e8ff;
+    --cash:#3dff7c;
+    --alert:#ff2d6f;
+    --amber:#ffc233;
+    --rsred:#e8473f;
+    --paper:#e8f6ff;
+    --grid:#15205f;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; overflow:hidden; background:#000; }
+  body{ font-family:'IBM Plex Mono','Courier New',monospace; color:var(--paper); user-select:none; -webkit-user-select:none; touch-action:manipulation; }
+  .px{ font-family:'Press Start 2P',monospace; }
+
+  #crt{
+    position:fixed; inset:0; display:flex; flex-direction:column; overflow:hidden;
+    background:radial-gradient(ellipse at 50% 30%, var(--crt-navy) 0%, var(--crt-deep) 70%);
+  }
+  #crt::before{
+    content:''; position:absolute; inset:0; z-index:90; pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.20) 0 1px, transparent 2px 4px);
+    mix-blend-mode:multiply;
+  }
+  #crt::after{
+    content:''; position:absolute; inset:0; z-index:91; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.5) 100%);
+  }
+
+  /* ===== SCREENS ===== */
+  .screen{
+    position:absolute; inset:0; display:none; flex-direction:column; align-items:center;
+    z-index:50; padding:14px; text-align:center;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .screen.active{ display:flex; }
+  .panel{
+    margin:auto;                /* centers when content fits; scrolls when it doesn't */
+    display:flex; flex-direction:column; align-items:center;
+    width:100%; max-width:560px; padding:18px 0;
+  }
+  .hook{ margin-top:16px; font-size:clamp(12px,3.2vw,15px); color:#cfe2ff; }
+  .hook b{ font-weight:700; }
+  .keys{ margin-top:12px; font-size:clamp(7px,2vw,9px); color:#7e93c4; letter-spacing:1px; }
+  .howtoggle{
+    margin-top:18px; font-size:9px; letter-spacing:1px; color:var(--phosphor);
+    cursor:pointer; text-decoration:underline;
+  }
+  .howto{ display:none; }
+  .howto.open{ display:block; }
+  .eyebrow{ font-size:9px; letter-spacing:3px; color:var(--amber); margin-bottom:18px; }
+  h1.logo{
+    font-size:clamp(24px,6.5vw,50px); line-height:1.25; color:var(--phosphor);
+    text-shadow:0 0 12px rgba(39,232,255,.8), 4px 4px 0 #b1006b; margin-bottom:6px;
+  }
+  .logo small{ display:block; font-size:clamp(9px,2.2vw,15px); color:var(--cash); text-shadow:0 0 8px rgba(61,255,124,.7); margin-top:10px; letter-spacing:2px; }
+  .howto{ max-width:540px; width:94%; margin:14px auto 6px; font-size:12px; line-height:1.85; color:#9fb6d8; text-align:left; border-left:3px solid var(--phosphor); padding-left:14px; }
+  .howto b{ color:var(--paper); }
+  .btn{
+    display:inline-block; margin-top:18px; cursor:pointer;
+    font-family:'Press Start 2P',monospace; font-size:13px;
+    color:#04102a; background:var(--cash); border:none; padding:16px 26px;
+    box-shadow:0 0 18px rgba(61,255,124,.55), inset -4px -4px 0 rgba(0,0,0,.25); letter-spacing:1px;
+  }
+  .btn:active{ transform:translateY(2px); }
+  .btn.alt{ background:var(--phosphor); box-shadow:0 0 18px rgba(39,232,255,.55), inset -4px -4px 0 rgba(0,0,0,.25); }
+  .blink{ animation:blink 1.1s steps(1) infinite; }
+  @keyframes blink{ 50%{opacity:.15;} }
+  .titleemail{
+    width:92%; max-width:380px; margin-top:16px; padding:11px 12px;
+    background:#101542; border:1px solid #2a3470; color:var(--paper);
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; text-align:center;
+  }
+  .titleemail:focus{ outline:2px solid var(--phosphor); }
+  .titleemail::placeholder{ color:#5b6a96; }
+  .bigword{ font-size:clamp(18px,5.5vw,32px); color:var(--cash); text-shadow:0 0 14px rgba(61,255,124,.7), 3px 3px 0 #006b35; margin-bottom:14px; line-height:1.5;}
+  .bigword.bad{ color:var(--alert); text-shadow:0 0 14px rgba(255,45,111,.7), 3px 3px 0 #6b0030; }
+  .substat{ font-size:13px; color:#9fb6d8; line-height:2.1; }
+  .substat b{ color:var(--paper); }
+  .rating{ margin:16px 0 4px; font-family:'Press Start 2P',monospace; font-size:clamp(11px,3.2vw,17px); color:var(--amber); text-shadow:0 0 10px rgba(255,194,51,.7); line-height:1.7;}
+
+  /* ===== END SCREEN / REPORT CARD ===== */
+  #scr-end .endwrap{ margin:auto; }
+  .endwrap{ max-width:520px; width:96%; display:flex; flex-direction:column; align-items:center; padding:18px 0 30px; }
+  .iqrow{ display:flex; gap:16px; align-items:center; margin:10px 0 6px; }
+  .iqbox{
+    border:2px solid var(--phosphor); padding:10px 16px; text-align:center;
+    background:rgba(8,14,58,.85); box-shadow:0 0 14px rgba(39,232,255,.25);
+  }
+  .iqbox span{ font-size:8px; letter-spacing:2px; color:#7e93c4; font-family:'Press Start 2P',monospace; display:block; margin-bottom:6px;}
+  .iqbox b{ font-size:26px; color:var(--phosphor); text-shadow:0 0 10px rgba(39,232,255,.7);}
+  .report{ width:100%; margin:12px 0 4px; text-align:left; }
+  .report .cat{ display:flex; align-items:center; gap:8px; margin:6px 0; }
+  .report .cat span{ width:118px; font-size:9px; letter-spacing:1px; color:#9fb6d8; font-family:'Press Start 2P',monospace; }
+  .report .barwrap{ flex:1; height:12px; background:#101542; border:1px solid #1d2a6e; }
+  .report .bar{ height:100%; background:linear-gradient(90deg,var(--alert),var(--amber),var(--cash)); }
+  .report .pct{ width:42px; font-size:11px; color:var(--paper); text-align:right; font-weight:700;}
+  .pitch{
+    margin:14px 0 4px; font-size:12.5px; line-height:1.75; color:#cfe2ff; text-align:left;
+    border-left:3px solid var(--rsred); padding-left:12px;
+  }
+  .pitch b{ color:var(--rsred); }
+  .ctarow{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; justify-content:center; }
+  .cta-main{ background:var(--rsred); color:#fff; box-shadow:0 0 18px rgba(232,71,63,.6), inset -4px -4px 0 rgba(0,0,0,.25); font-size:12px; padding:15px 20px;}
+  .cta-sm{ font-size:9px; padding:11px 12px; }
+  .finehint{ font-size:10px; color:#7e93c4; margin-top:10px; min-height:14px; }
+
+  /* ===== CHALLENGE / SHARE ===== */
+  .sharewrap{ width:100%; max-width:420px; margin-top:20px; padding-top:14px; border-top:1px dashed #2a3470; }
+  .sharelbl{ font-size:8px; letter-spacing:2px; color:#ffc233; margin:10px 0 7px; }
+  .sharebtns{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  .sharebtn{
+    font-family:'Press Start 2P',monospace; font-size:8px; letter-spacing:1px;
+    padding:11px 13px; cursor:pointer; color:var(--paper);
+    background:#101542; border:2px solid #2a3470;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.35);
+  }
+  .sharebtn:active{ transform:translateY(2px); box-shadow:none; }
+  .sharebtn.in{ border-color:#0a66c2; color:#7ec3ff; }
+  .sharebtn.em{ border-color:var(--cash); color:var(--cash); }
+  .sharebtn.xx{ border-color:#e8f6ff; color:#e8f6ff; }
+  .sharebtn.nv{ border-color:var(--amber); color:var(--amber); }
+
+  /* ===== LEAD MODAL ===== */
+  #leadmodal{
+    position:fixed; inset:0; z-index:80; display:none;
+    background:rgba(3,4,18,.86); align-items:center; justify-content:center; padding:16px;
+  }
+  #leadmodal.open{ display:flex; }
+  .leadbox{
+    width:100%; max-width:420px; border:2px solid var(--rsred);
+    background:rgba(8,8,34,.98); padding:20px 18px;
+    box-shadow:0 0 30px rgba(232,71,63,.4);
+  }
+  .leadhead{ font-size:12px; color:var(--paper); line-height:1.7; margin-bottom:10px; }
+  .leadsub{ font-size:12px; color:#9fb6d8; line-height:1.6; margin-bottom:14px; }
+  .leadsub b{ color:var(--cash); }
+  .leadbox input, .leadbox select{
+    width:100%; margin-bottom:9px; padding:11px 12px;
+    background:#101542; border:1px solid #2a3470; color:var(--paper);
+    font-family:'IBM Plex Mono',monospace; font-size:13px;
+  }
+  .leadbox input:focus, .leadbox select:focus{ outline:2px solid var(--phosphor); }
+  .leaderr{ color:var(--alert); font-size:11px; min-height:15px; margin-bottom:6px; }
+  .leadclose{ margin-top:12px; font-size:11px; color:#7e93c4; text-align:center; cursor:pointer; text-decoration:underline; }
+
+  /* ===== HUD ===== */
+  #hud{ display:none; z-index:20; position:relative; padding:8px 10px 4px; gap:6px; flex-direction:column; }
+  #hud.active{ display:flex; }
+  .hudrow{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .stat{ font-size:9px; color:#7e93c4; letter-spacing:1px; }
+  .stat b{ display:block; font-family:'Press Start 2P',monospace; font-size:clamp(10px,2.6vw,14px); margin-top:3px; }
+  #score b{ color:var(--cash); text-shadow:0 0 8px rgba(61,255,124,.6);}
+  #stage b{ color:var(--phosphor);}
+  #streak b{ color:var(--amber);}
+  #lives b{ color:var(--alert); letter-spacing:2px;}
+  #qpanel{
+    border:1px solid rgba(39,232,255,.45); background:rgba(4,10,46,.92);
+    padding:8px 12px; text-align:left; box-shadow:0 0 14px rgba(39,232,255,.15) inset;
+  }
+  #qlabel{ font-size:8px; color:var(--amber); letter-spacing:2px; margin-bottom:5px; font-family:'Press Start 2P',monospace;}
+  #qedi{ font-size:clamp(13px,3.4vw,16px); color:var(--phosphor); font-weight:700; text-shadow:0 0 8px rgba(39,232,255,.5); word-break:break-word;}
+  #qtext{ font-size:clamp(11px,2.9vw,13px); color:#cfe2ff; margin-top:4px; line-height:1.45;}
+  #qopts{ font-size:clamp(10px,2.6vw,11.5px); color:#9fb6d8; margin-top:5px; line-height:1.55; display:none; }
+  #qopts.show{ display:block; }
+  #qopts b{ color:#ff2d6f; font-family:'Press Start 2P',monospace; font-size:8px; margin-right:3px; }
+  #timerwrap{ height:7px; background:#101542; border:1px solid #1d2a6e; margin-top:8px; }
+  #timerbar{ height:100%; width:100%; background:linear-gradient(90deg,var(--cash),var(--amber),var(--alert)); }
+  .timerlabel{ font-size:8px; color:#7e93c4; letter-spacing:1px; margin-top:3px; }
+
+  /* ===== CANVAS ===== */
+  #stagewrap{ position:relative; flex:1; display:none; z-index:15; touch-action:none; }
+  #stagewrap.active{ display:block; }
+  canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+
+  /* ===== USE AI button — top-left of the playfield ===== */
+  #aibtn{
+    position:absolute; top:10px; left:10px; z-index:30; cursor:pointer;
+    border:2px solid #5a4470; background:rgba(8,8,34,.9);
+    padding:8px 12px 9px; min-width:128px;
+    font-family:'Press Start 2P',monospace; font-size:10px; color:#8a7aa0;
+  }
+  #aibtn .lbl{ display:block; letter-spacing:1px; }
+  #aibarwrap{ height:6px; background:#101542; border:1px solid #2a3470; margin-top:7px; }
+  #aibar{ height:100%; width:0%; background:#8a7aa0; transition:width .25s ease; }
+  #aibtn.ready{
+    border-color:var(--rsred); color:var(--rsred);
+    box-shadow:0 0 16px rgba(232,71,63,.55);
+    animation:aipulse 1.2s ease-in-out infinite;
+  }
+  #aibtn.ready #aibar{ background:var(--rsred); }
+  #aibtn.ready:active{ background:rgba(232,71,63,.25); }
+  /* filing-timer urgency states */
+  #aibtn.warn{ animation:aiwarn .5s steps(2) infinite; }
+  @keyframes aiwarn{
+    0%,100%{ border-color:#5a4470; }
+    50%{ border-color:var(--amber); box-shadow:0 0 14px rgba(255,194,51,.55); }
+  }
+  #aibtn.crit{
+    border-color:var(--alert); color:#ffd7e4;
+    background:rgba(120,12,45,.92);
+    animation:aicrit .45s ease-in-out infinite;
+  }
+  #aibtn.crit #aibar{ background:var(--alert); }
+  @keyframes aicrit{
+    0%,100%{ transform:scale(1);    box-shadow:0 0 10px rgba(255,45,111,.5); }
+    50%{     transform:scale(1.07); box-shadow:0 0 26px rgba(255,45,111,.95); }
+  }
+  @keyframes aipulse{ 50%{ box-shadow:0 0 26px rgba(232,71,63,.9); } }
+
+  /* toast */
+  #toast{
+    position:absolute; left:50%; top:42%; transform:translate(-50%,-50%);
+    max-width:480px; width:88%; z-index:40; display:none;
+    border:2px solid var(--amber); background:rgba(8,8,34,.97); padding:14px 16px;
+    box-shadow:0 0 24px rgba(255,194,51,.3); text-align:left;
+  }
+  #toast.show{ display:block; animation:pop .18s ease-out; }
+  @keyframes pop{ from{ transform:translate(-50%,-50%) scale(.85); } }
+  #toasthead{ font-family:'Press Start 2P',monospace; font-size:11px; margin-bottom:8px; line-height:1.5;}
+  #toastbody{ font-size:12.5px; line-height:1.6; color:#d7e6ff; }
+  #toastgo{ font-size:9px; color:#7e93c4; margin-top:10px; letter-spacing:1px; font-family:'Press Start 2P',monospace;}
+
+  /* ===== TOUCH CONTROLS ===== */
+  #controls{ display:none; z-index:25; position:relative; gap:8px; padding:8px 12px 14px; justify-content:space-between; touch-action:none; }
+  #controls.active{ display:flex; }
+  .padgroup{ display:flex; gap:8px; }
+  .ctl{
+    width:78px; padding:18px 0; text-align:center; cursor:pointer;
+    font-family:'Press Start 2P',monospace; font-size:13px;
+    border:2px solid var(--phosphor); color:var(--phosphor); background:rgba(8,14,58,.8);
+  }
+  .ctl:active, .ctl.held{ background:rgba(39,232,255,.25); }
+  .ctl.fire{ border-color:var(--alert); color:var(--alert); width:88px; }
+  .ctl.fire:active, .ctl.fire.held{ background:rgba(255,45,111,.25); }
+  .ctl.fly{ border-color:var(--cash); color:var(--cash); width:88px; font-size:11px; }
+  .ctl.fly:active, .ctl.fly.held{ background:rgba(61,255,124,.25); }
+
+  #mute{
+    position:absolute; top:8px; right:10px; z-index:60; cursor:pointer;
+    font-size:10px; color:#7e93c4; border:1px solid #2a3470; padding:6px 9px; background:rgba(5,8,40,.8);
+    font-family:'Press Start 2P',monospace;
+  }
+  #errbar{
+    display:none; position:fixed; left:0; right:0; bottom:0; z-index:99;
+    background:#5c0f2c; color:#ffd7e4; border-top:2px solid var(--alert);
+    font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.5;
+    padding:8px 12px; cursor:pointer; word-break:break-word;
+  }
+  @media (prefers-reduced-motion: reduce){ .blink{ animation:none; } #aibtn.ready{ animation:none; } #aibtn.warn{ animation:none; border-color:var(--amber); } #aibtn.crit{ animation:none; } }
+</style>
+</head>
+<body>
+<div id="errbar"></div>
+<div id="crt">
+  <div id="mute">SND ON</div>
+
+  <!-- TITLE -->
+  <div class="screen active" id="scr-title">
+    <div class="panel">
+      <div class="eyebrow px">RED SKY HEALTH PRESENTS</div>
+      <h1 class="logo px">DENIAL<br>BLASTER<small>★ REVENUE CYCLE QUEST ★</small></h1>
+      <div class="hook">Work real denials. Beat <b style="color:var(--amber)">THE PAYER</b>. Fund patient care.</div>
+      <div class="keys px">◀ ▶ MOVE · ▲ FLY · SPACE FIRE · <span style="color:var(--rsred)">E = AI ⚡</span></div>
+      <input id="title-email" class="titleemail" type="email" placeholder="Work email — get your Denial IQ report (optional)" autocomplete="email">
+      <button type="button" class="btn px blink" id="btn-boot">▶ BOOT THE BOT</button>
+      <div class="howtoggle px" id="howtoggle" role="button" tabindex="0">▼ HOW TO PLAY</div>
+      <div class="howto" id="howto">
+        <b>FLY</b> to an answer's level and <b>BLAST</b> that wall segment. Correct → <b style="color:var(--cash)">payer paid unlocks</b>. Wrong → a <b style="color:var(--alert)">Policy Gremlin</b> escapes and hunts you.<br>
+        Each level works one claim end-to-end: <b>decode → root cause → triage → prevent → remediate</b>.<br>
+        <b style="color:var(--amber)">THE PAYER</b> guards every level's end. Your <b style="color:var(--rsred)">AI squadron</b> deploys free — it shields you and clears the swarm while you dodge slams and take the boss down.<br>
+        <b style="color:var(--rsred)">⚡ USE AI</b> charges every 3 correct answers or Policy Gremlin kills — it lasers the correct answer for you.<br>
+        Deliver the resolved claim to the <b style="color:var(--cash)">hospital</b> to clear the level.<br>
+        <b>TOUCH:</b> pad to move · hold FLY · tap FIRE · tap ⚡ when it glows.
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGE INTERSTITIAL -->
+  <div class="screen" id="scr-stage">
+    <div class="panel">
+      <div class="eyebrow px" id="st-eyebrow">STAGE 1 OF 5</div>
+      <div class="bigword px" id="st-name">DECODE THE 835</div>
+      <div class="substat" id="st-brief"></div>
+      <button type="button" class="btn alt px" id="btn-engage">ENGAGE ▶</button>
+      <div class="sharewrap" id="st-share" style="display:none"></div>
+      <div class="finehint" id="st-sharehint"></div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hudrow">
+      <div class="stat" id="score">RECOVERED<b>$0</b></div>
+      <div class="stat" id="stage">STAGE<b>1-1</b></div>
+      <div class="stat" id="time">TIME<b>0:00</b></div>
+      <div class="stat" id="streak">CLEAN STREAK<b>0</b></div>
+      <div class="stat" id="lives">A/R SHIELDS<b>♥♥♥</b></div>
+    </div>
+    <div id="qpanel">
+      <div id="qlabel">FLY TO THE NEXT DENIAL WALL…</div>
+      <div id="qedi"></div>
+      <div id="qtext"></div>
+      <div id="qopts"></div>
+      <div id="timerwrap"><div id="timerbar"></div></div>
+      <div class="timerlabel">TIMELY FILING WINDOW</div>
+    </div>
+  </div>
+
+  <!-- GAME CANVAS -->
+  <div id="stagewrap">
+    <canvas id="cv"></canvas>
+    <div id="aibtn">
+      <span class="lbl" id="ailbl">USE AI ⚡0</span>
+      <div id="aibarwrap"><div id="aibar"></div></div>
+    </div>
+    <div id="toast">
+      <div id="toasthead" class="px"></div>
+      <div id="toastbody"></div>
+      <div id="toastgo">▶ TAP HERE / PRESS SPACE TO CONTINUE</div>
+    </div>
+  </div>
+
+  <!-- TOUCH CONTROLS -->
+  <div id="controls">
+    <div class="padgroup">
+      <div class="ctl" id="btnL">◀</div>
+      <div class="ctl" id="btnR">▶</div>
+    </div>
+    <div class="padgroup">
+      <div class="ctl fire" id="btnF">FIRE</div>
+      <div class="ctl fly" id="btnJ">FLY ▲</div>
+    </div>
+  </div>
+
+  <!-- END SCREEN: report card + conversion -->
+  <div class="screen" id="scr-end">
+    <div class="endwrap">
+      <div class="bigword px" id="end-title">A/R EXHAUSTED</div>
+      <div class="rating" id="end-rating"></div>
+      <div class="iqrow">
+        <div class="iqbox"><span>DENIAL IQ</span><b class="px" id="end-iq">0</b></div>
+        <div class="substat" id="end-stats"></div>
+      </div>
+      <div class="report" id="end-report"></div>
+      <div class="pitch" id="end-pitch">
+        That AI squadron handling the denial flood for you? In real life it's called
+        <b>Daniel™</b> by Red Sky Health — it works your real denials at real scale,
+        and you only pay on recovered revenue.
+      </div>
+      <div class="ctarow">
+        <button class="btn px cta-main" id="btn-lead">GET MY RECOVERY ESTIMATE</button>
+      </div>
+      <div class="ctarow">
+        <button class="btn alt px cta-sm" id="btn-card">↓ SCORECARD</button>
+        <button type="button" class="btn alt px cta-sm" id="btn-replay">↻ REPLAY</button>
+      </div>
+      <div class="sharewrap" id="end-share"></div>
+      <div class="finehint" id="share-hint"></div>
+    </div>
+  </div>
+
+  <!-- LEAD CAPTURE MODAL (MVP — submits to in-memory stub) -->
+  <div id="leadmodal">
+    <div class="leadbox">
+      <div id="leadform">
+        <div class="leadhead px">SEE WHAT DANIEL™ WOULD RECOVER<br>FROM YOUR CLAIMS</div>
+        <div class="leadsub">You recovered <b id="lead-score">$0</b> in the arcade. Let's talk about the real thing — a proof-of-value built from your actual denial data.</div>
+        <input id="lf-name" type="text" placeholder="Name" autocomplete="name">
+        <input id="lf-email" type="email" placeholder="Work email" autocomplete="email">
+        <input id="lf-org" type="text" placeholder="Organization" autocomplete="organization">
+        <select id="lf-vol">
+          <option value="">Monthly claim volume…</option>
+          <option>Under 1,000</option>
+          <option>1,000 – 10,000</option>
+          <option>10,000 – 50,000</option>
+          <option>50,000+</option>
+        </select>
+        <div class="leaderr" id="lf-err"></div>
+        <button class="btn px cta-main" id="lf-submit">REQUEST MY POV ▶</button>
+        <div class="leadclose" id="lf-cancel">no thanks, back to my score</div>
+      </div>
+      <div id="leadok" style="display:none">
+        <div class="leadhead px" style="color:var(--cash)">✔ REQUEST RECEIVED</div>
+        <div class="leadsub">Thanks! The Red Sky Health team will reach out shortly to scope your proof-of-value. Your Denial IQ report is attached to the request.</div>
+        <button class="btn alt px cta-sm" id="lf-done">BACK TO RESULTS</button>
+      </div>
+      <div id="checkform" style="display:none">
+        <div class="leadhead px" style="color:var(--amber)">★ CHECKPOINT — CLAIM FILE #1 RESOLVED</div>
+        <div class="leadsub">You've recovered <b id="ck-score">$0</b> so far. Drop your work email to save your run — we'll send your full Denial IQ report when you're done (or wherever you stop).</div>
+        <input id="ck-email" type="email" placeholder="Work email" autocomplete="email">
+        <div class="leaderr" id="ck-err"></div>
+        <button class="btn px cta-main" id="ck-submit">SAVE MY RUN ▶</button>
+        <div class="leadclose" id="ck-skip">continue without saving</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---- on-screen error reporter: surfaces the REAL error instead of "Script error." ---- */
+(function(){
+  const bar=document.getElementById('errbar');
+  window.__showErr=function(msg){
+    try{ bar.textContent='⚠ '+msg+'  (tap to dismiss)'; bar.style.display='block'; }catch(e){}
+  };
+  bar.addEventListener('click',()=>{ bar.style.display='none'; });
+  window.addEventListener('error',e=>{
+    __showErr((e.message||'Unknown error')+(e.lineno? ' @line '+e.lineno:''));
+  });
+  window.addEventListener('unhandledrejection',e=>{
+    __showErr('Promise: '+((e.reason&&e.reason.message)||e.reason||'unknown'));
+  });
+})();
+function safeLog(){ try{ console.info.apply(console,arguments); }catch(e){} }
+/* ============================================================================
+   DENIAL BLASTER — MVP MARKETING BUILD (Red Sky Health)
+   ----------------------------------------------------------------------------
+   PRODUCTION INTEGRATION POINTS (all currently stubbed, no external calls):
+
+   1. ANALYTICS  → track(event, props)
+      Events fired: game_start, stage_complete, boss_defeated, game_over,
+      report_viewed, lead_open, lead_submit, scorecard_download,
+      checkpoint_shown/captured/skipped, cta_pov_click,
+      challenge_linkedin, challenge_email, share_linkedin, share_x, share_native
+      TODO(prod): forward to GA4 (gtag) / HubSpot / Segment. Currently
+      console.info + window.dataLayer push (safe no-op if GTM absent).
+
+   2. LEAD CAPTURE → submitLead(payload)  — PROGRESSIVE CAPTURE, 3 touchpoints:
+      a) TITLE (optional email field)        → partial lead, capturedAt:'title'
+      b) CHECKPOINT after Claim File #1      → partial lead, capturedAt:'checkpoint'
+         (soft gate: skippable, shown once — captures pre-abandonment)
+      c) END SCREEN full form                → full lead, capturedAt:'end'
+      TODO(prod): upsert by email in CRM so partials enrich into full profiles.
+      Payload: {name?, email, org?, claimVolume?, capturedAt, denialIQ?, rating?,
+                score, accuracy?, categoryScores?, utm, ts}
+      Currently logged to console and held in memory.
+
+   3. UTM ATTRIBUTION → getUTM()
+      Captures utm_* params from the page URL and attaches to lead payload.
+
+   4. CTA DESTINATIONS → POV_URL constant below.
+      TODO(prod): point at the live POV-request landing page.
+
+   5. SHARE/CHALLENGE URL → GAME_URL constant below.
+      TODO(prod): final hosted URL for og-tagged share page + leaderboard.
+   ============================================================================ */
+const POV_URL='https://www.redskyhealth.com/#pov-request';        // TODO(prod)
+const GAME_URL='https://www.redskyhealth.com/denial-blaster';     // TODO(prod)
+const LEADS=[];                                                    // in-memory MVP store
+
+function getUTM(){
+  const u={};
+  try{
+    const q=new URLSearchParams(location.search||'');
+    ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(k=>{
+      if(q.get(k)) u[k]=q.get(k);
+    });
+  }catch(e){}
+  return u;
+}
+function track(event, props){
+  try{
+    const payload=Object.assign({event, ts:Date.now()}, props||{});
+    safeLog('[DenialBlaster analytics]', payload);                 // TODO(prod): gtag/HubSpot
+    (window.dataLayer=window.dataLayer||[]).push(payload);
+  }catch(e){}
+}
+function submitLead(payload){
+  try{
+    LEADS.push(payload);
+    safeLog('[DenialBlaster LEAD — route to CRM in prod]', payload);     // TODO(prod)
+    track('lead_submit',{org:payload.org, claimVolume:payload.claimVolume, denialIQ:payload.denialIQ});
+  }catch(e){}
+  return true;
+}
+/* =====================  CONTENT: THE DENIAL LIFECYCLE  =====================
+   Stage 1: Identify (decode the CARC/RARC on the 835)
+   Stage 2: Root cause (where in the revenue cycle did it break?)
+   Stage 3: Next action triage (resubmit / appeal / escalate / bill / stand down)
+   Stage 4: Remediation (the right weapon for each denial)
+   Stage 5: Prevention (kill the pattern upstream)
+   THE PAYER boss arena spawns every 5 correct answers.                      */
+
+const STAGES = [
+{
+  name:"DECODE THE 835",
+  brief:"The remit is in. Read the CAS segment at each wall<br>and blast the segment with the correct meaning.",
+  timer:50, qLabel:"DECODE THIS CARC",
+  questions:[
+    { edi:"CAS*CO*29*1450.00", text:"What is the payer telling you?",
+      opts:["Timely filing limit has expired","Duplicate claim or service","Charge exceeds contracted fee schedule","Precert / authorization absent"], correct:0,
+      why:"CO-29 = the claim arrived after the payer's filing deadline. The clock matters — every payer's window is different." },
+    { edi:"CAS*CO*197*2310.00", text:"Decode the denial.",
+      opts:["Non-covered service","Precert / prior authorization absent","Patient cannot be identified","Coverage terminated"], correct:1,
+      why:"CO-197 = no prior auth on file for the service. One of the most preventable denials in the book." },
+    { edi:"CAS*CO*50*860.00", text:"Decode the denial.",
+      opts:["Bundled into another service","Wrong payer / contractor","Not deemed medically necessary","Missing claim information"], correct:2,
+      why:"CO-50 = the payer says the service wasn't medically necessary per their coverage criteria. Clinical fight, not a clerical fix." },
+    { edi:"CAS*CO*22*540.00", text:"Decode the denial.",
+      opts:["May be covered by another payer (COB)","Deductible amount","Frequency limit exceeded","Provider not credentialed"], correct:0,
+      why:"CO-22 = coordination of benefits issue — the payer believes someone else is primary. Fix the COB order first." },
+    { edi:"CAS*CO*18*1120.00", text:"Decode the denial.",
+      opts:["Claim lacks information","Exact duplicate claim / service","Charge exceeds fee schedule","Untimely filing"], correct:1,
+      why:"CO-18 = the payer thinks it already received this claim. Resubmitting blindly makes it worse." },
+    { edi:"CAS*PR*204*395.00", text:"Note the group code: PR.",
+      opts:["Contractual write-off required","Authorization missing","Service not covered under the patient's plan","Diagnosis inconsistent with procedure"], correct:2,
+      why:"PR-204 = not a covered benefit — and group code PR means it may be patient responsibility if you set expectations correctly up front." },
+    { edi:"CAS*CO*16*210.00 · RARC M51", text:"The CARC says 'lacks information' — the RARC says what.",
+      opts:["Missing / invalid procedure code","Missing prior auth number","Patient deceased","Wrong payer billed"], correct:0,
+      why:"CARCs give the category; RARCs give the specifics. CO-16 alone is vague — M51 pinpoints the procedure code as the defect. Always read the pair." },
+    { edi:"ERA SHOWS CO-253", text:"A 2% reduction on a Medicare claim.",
+      opts:["Federal sequestration — normal, do not work it","Underpayment — dispute it","Coding error","Appeal to the MAC"], correct:0,
+      why:"CO-253 is the federal sequestration reduction. It's statutory — chasing it burns time you owe to real denials." },
+  ]
+},
+{
+  name:"ROOT CAUSE SCAN",
+  brief:"A denial is a symptom. Trace each one to where the<br>revenue cycle actually broke: front, middle, or back end.",
+  timer:45, qLabel:"WHERE DID IT BREAK?",
+  questions:[
+    { edi:"CO-27 · COVERAGE TERMINATED", amt:980, text:"DOS was 14 days after the policy lapsed.",
+      opts:["Back end: follow-up failure","Front end: eligibility not verified","Mid cycle: coding error","Payer error: dispute it"], correct:1,
+      why:"Eligibility wasn't checked at scheduling or check-in. A real-time 270/271 check would have caught the lapse before service." },
+    { edi:"CO-11 · DX INCONSISTENT W/ PROCEDURE", amt:1340, text:"The diagnosis doesn't support the CPT billed.",
+      opts:["Front end: registration error","Back end: cash posting error","Mid cycle: coding / documentation","Payer error: dispute it"], correct:2,
+      why:"This breaks in coding or provider documentation. The chart and the codes have to tell the same story." },
+    { edi:"CO-29 · TIMELY FILING", amt:760, text:"Claim sat in a clearinghouse reject queue for 5 months.",
+      opts:["Back end: billing follow-up failure","Front end: authorization gap","Mid cycle: charge capture","Patient error"], correct:0,
+      why:"Rejected claims that nobody works are how filing windows die. Back-end queue discipline is the root cause." },
+    { edi:"CO-197 · NO AUTHORIZATION", amt:2150, text:"MRI performed; auth was never requested.",
+      opts:["Mid cycle: coding error","Back end: payment posting","Front end: auth workflow failure","Payer error: dispute it"], correct:2,
+      why:"Auth is a front-end access function. The order was scheduled without anyone confirming an auth was on file." },
+    { edi:"CO-16 · CLAIM LACKS INFORMATION", amt:640, text:"Rendering provider NPI missing on the 837.",
+      opts:["Front end: insurance card scan","Back end: claim build defect","Mid cycle: medical necessity","Patient error"], correct:1,
+      why:"A claim-build defect. Claim-level quality checks should stop this before it ever leaves the building." },
+    { edi:"CO-45 · EXCEEDS FEE SCHEDULE", amt:420, text:"Billed $400; contract allows $260.",
+      opts:["A defect — appeal everything","Normal contractual adjustment, not a true denial","Front end: eligibility","Coding error"], correct:1,
+      why:"CO-45 is the contractual write-down to your negotiated rate. Knowing what NOT to work is part of working denials." },
+  ]
+},
+{
+  name:"NEXT ACTION TRIAGE",
+  brief:"The denial is real — now what? Resubmit, appeal, escalate,<br>bill the patient, or stand down. Blast the right next move.",
+  timer:45, qLabel:"DETERMINE NEXT ACTION",
+  questions:[
+    { edi:"CO-16 + N290 · MISSING RENDERING NPI", amt:540, text:"Pick the next action.",
+      opts:["Corrected claim resubmission","Formal appeal letter","Peer-to-peer review","Write-off"], correct:0,
+      why:"Data defects are resubmissions. RARC N290 tells you exactly what to fix — appeals are for adjudication disputes, not typos." },
+    { edi:"CO-50 · 1ST DENIAL · STRONG CHART", amt:1880, text:"Clinical support is solid. Next action?",
+      opts:["ALJ hearing","Corrected claim","First-level appeal with records + policy citation","Accept and adjust"], correct:2,
+      why:"Start at level one with the record mapped to the payer's criteria. You can't skip levels — and most overturns happen here." },
+    { edi:"MEDICARE · RECON UPHELD", amt:2650, text:"Redetermination and reconsideration both upheld. Dollar threshold is met.",
+      opts:["Refile the original claim","Escalate to ALJ hearing (level 3)","Start over at redetermination","Give up — two strikes is final"], correct:1,
+      why:"Medicare appeals run 5 levels: redetermination → reconsideration → ALJ → Appeals Council → federal court. Meeting the amount-in-controversy unlocks the ALJ." },
+    { edi:"PR-1 · DEDUCTIBLE APPLIED", amt:350, text:"Adjudication is correct. Next action?",
+      opts:["Appeal the deductible","Resubmit the claim","Write it off","Bill the patient — no payer action needed"], correct:3,
+      why:"PR group code = patient responsibility. A correctly applied deductible isn't a denial to fight — it's a statement to send." },
+    { edi:"PAID $180 · CONTRACT SAYS $260", amt:80, text:"Underpayment detected. Next action?",
+      opts:["File an underpayment dispute citing the contract rate","Appeal medical necessity","Rebill at a higher charge","Accept — close enough"], correct:0,
+      why:"Underpayments are contract disputes, not clinical appeals. Cite the fee schedule line and demand the variance — at scale this is real money." },
+    { edi:"CO-252 · RECORDS REQUESTED", amt:1140, text:"Payer wants additional documentation. Next action?",
+      opts:["File a formal appeal immediately","Submit the requested records within the deadline","Resubmit the claim unchanged","Call it a denial and write off"], correct:1,
+      why:"CO-252 is a development request, not a final denial. Send exactly what's asked, on time — escalating prematurely just slows payment." },
+    { edi:"RECOUPMENT NOTICE RECEIVED", amt:2200, text:"Payer is clawing back a prior payment. First move?",
+      opts:["Repay immediately, always","Ignore the notice","Validate the overpayment before repaying — appeal if wrong","Rebill the claim"], correct:2,
+      why:"Recoupments are wrong often enough to check every one. Validate against the contract and remit history — you have appeal rights with deadlines." },
+    { edi:"APPEAL DEADLINE: TOMORROW", amt:1750, text:"The packet isn't perfect yet. Next move?",
+      opts:["Wait until the packet is perfect","File timely with what you have — supplement after","Ask the payer to pause the clock","Refile the claim instead"], correct:1,
+      why:"A late perfect appeal is a dead appeal. Filing deadlines are jurisdictional — file timely, then strengthen the record." },
+  ]
+},
+{
+  name:"REMEDIATION STRIKE",
+  brief:"Now resolve them. Correct &amp; resubmit, appeal with proof,<br>redirect, or stand down — blast the right weapon.",
+  timer:45, qLabel:"CHOOSE THE REMEDIATION",
+  questions:[
+    { edi:"CO-29 · TIMELY FILING", amt:1180, text:"You hold a clearinghouse acceptance report proving on-time submission.",
+      opts:["Write it off","Rebill the same claim","Appeal with proof of timely filing","Bill the patient"], correct:2,
+      why:"Timely filing denials are overturnable when you can prove submission — acceptance reports and 277CA acks are your evidence." },
+    { edi:"CO-16 · MISSING INFORMATION", amt:830, text:"Claim is missing the referring provider NPI.",
+      opts:["Submit a corrected claim with the data fixed","File a formal appeal letter","Request retro authorization","Adjust to bad debt"], correct:0,
+      why:"CO-16 is a fix-and-resubmit, not an appeal. Correct the claim (frequency code 7 where required) and get it back out the door." },
+    { edi:"CO-50 · NOT MEDICALLY NECESSARY", amt:1960, text:"The chart strongly supports the service per the payer's own policy.",
+      opts:["Corrected claim","Appeal with clinical documentation vs. the coverage policy","Write off and move on","Change the diagnosis code to force payment"], correct:1,
+      why:"Fight CO-50 with the medical record mapped against the payer's medical policy / LCD criteria. (And never code for payment — that's fraud.)" },
+    { edi:"CO-18 · DUPLICATE", amt:1120, text:"You can't find a payment, so a teammate wants to rebill.",
+      opts:["Rebill immediately","Check status of the ORIGINAL claim first","Appeal the duplicate","Send to collections"], correct:1,
+      why:"The original claim is in flight or paid. Statusing it (276/277 or portal) resolves CO-18 — rebilling just spawns more duplicates." },
+    { edi:"CO-22 · COB ISSUE", amt:540, text:"Patient gained Medicare; commercial plan now thinks it's secondary.",
+      opts:["Update COB and bill the primary payer first","Appeal to the secondary","Bill the patient in full","Write off as non-covered"], correct:0,
+      why:"Fix the coordination of benefits — confirm primacy, bill primary, then cross over to secondary." },
+    { edi:"CO-109 · WRONG PAYER / CONTRACTOR", amt:1490, text:"Claim went to the wrong MAC jurisdiction.",
+      opts:["Appeal to the wrong payer anyway","Redirect the claim to the correct payer","Bill the patient","Hold for 90 days"], correct:1,
+      why:"CO-109 means this payer doesn't own the claim. Identify the correct payer/contractor and get it there inside the filing window." },
+  ]
+},
+{
+  name:"PREVENT &amp; PROTECT",
+  brief:"Best-in-class teams don't just work denials — they kill the<br>pattern upstream. Blast the prevention play for each trend.",
+  timer:45, qLabel:"PREVENT THE PATTERN",
+  questions:[
+    { edi:"TREND: CO-27 ↑ 38% MoM", amt:1820, text:"Coverage-terminated denials are spiking.",
+      opts:["Hire more appeal writers","Real-time eligibility (270/271) at scheduling AND check-in","Bill patients faster","Drop the payer"], correct:1,
+      why:"Eligibility verification at every touchpoint kills termination denials before service. Appeals are the expensive way to learn this." },
+    { edi:"TREND: CO-197 ON IMAGING", amt:2440, text:"Auth denials cluster on MRI / CT orders.",
+      opts:["Auth-required flagging + tracker before service is rendered","Appeal each one individually forever","Stop offering imaging","Shift cost to patients"], correct:0,
+      why:"An auth workflow that flags auth-required CPTs at ordering — with a tracked queue — prevents the denial instead of chasing it." },
+    { edi:"TREND: CO-29 EVERY QUARTER-END", amt:1330, text:"Filing-deadline denials spike at quarter close.",
+      opts:["Ask payers for extensions","Claim-aging alerts + filing-deadline work queues","Batch claims monthly","Write them off quietly"], correct:1,
+      why:"Age-based work queues with payer-specific deadline alerts make timely filing a system property, not a heroic effort." },
+    { edi:"TREND: CO-11 / CO-4 CODING DENIALS", amt:1570, text:"Dx-procedure mismatches and modifier errors keep recurring.",
+      opts:["Targeted coder education + claim quality edits before submission","Appeal harder","Remove modifiers entirely","Outsource and forget"], correct:0,
+      why:"Feed denial patterns back into claim edit rules and coder feedback loops — the denial data tells you exactly what to fix." },
+    { edi:"TREND: PR-204 NON-COVERED", amt:890, text:"Patients are surprised by non-covered services after the fact.",
+      opts:["Verify benefits + ABN / waiver BEFORE service","Bill and hope","Discount everything 50%","Suppress statements"], correct:0,
+      why:"Benefit verification plus a signed ABN/waiver up front converts surprise denials into informed, collectible patient responsibility." },
+    { edi:"METRIC CHECK", amt:2000, text:"Which metric best proves your denial PREVENTION program works?",
+      opts:["Total appeals filed (more = better)","First-pass / clean claim rate trending up","Number of denial codes memorized","Days to post payments"], correct:1,
+      why:"Appeals measure how hard you fight. Clean-claim / first-pass yield measures whether you stopped needing to. Prevention shows up there." },
+  ]
+}
+];
+
+/* ===== LEVEL BUILDER: each level = ONE claim worked end-to-end =====
+   The 5 walls of a level follow the real remediation workflow:
+   decode the remit → find the root cause → triage the next action →
+   prevent the repeat → execute the final remediation. Then THE PAYER,
+   then deliver the resolved claim to the hospital.                    */
+const PHASE_ORDER=[0,1,2,4,3];   // pool indexes: decode, root, triage, prevent, remediate
+const PHASE_LABELS=[
+  'STEP 1 · DECODE THE 835',
+  'STEP 2 · FIND THE ROOT CAUSE',
+  'STEP 3 · TRIAGE THE NEXT ACTION',
+  'STEP 4 · PREVENT THE REPEAT',
+  'STEP 5 · FINAL REMEDIATION'
+];
+const CLAIM_IDS=['#1042','#2217','#3580','#4096','#5731'];
+const LEVELS=Array.from({length:5},(_,li)=>({
+  name:'CLAIM FILE '+CLAIM_IDS[li],
+  brief:'A fresh denial just hit the remit. Work the claim end-to-end:<br>'+
+        'decode → root cause → triage → prevention → <b>final remediation</b>.<br>'+
+        'Then THE PAYER blocks the road. Beat it, and deliver the<br>resolved claim to the hospital.',
+  questions: PHASE_ORDER.map((pi,step)=>{
+    const Q=Object.assign({}, STAGES[pi].questions[li]);
+    Q.label=PHASE_LABELS[step];
+    Q.cat=step;
+    Q.timer= step===0? 50:45;
+    return Q;
+  })
+}));
+
+/* gremlin shells come in familiar two-tone payer color schemes — no names, just vibes */
+const PAYER_SCHEMES=[
+  {b:'#1f5fbf', a:'#f08a1d'},   // blue & orange
+  {b:'#0a4da2', a:'#eef4ff'},   // royal blue & white
+  {b:'#d6342c', a:'#f5f0ea'},   // red & cream
+  {b:'#3aa655', a:'#eef4ff'},   // green & white
+  {b:'#27a3e0', a:'#0a3a66'},   // light blue & navy
+  {b:'#123a6b', a:'#d6342c'},   // navy & red
+];
+function pickScheme(){ return PAYER_SCHEMES[Math.floor(Math.random()*PAYER_SCHEMES.length)]; }
+
+const BOSS_LESSON="High denial volume is a payer strategy — bury the provider in paper and hope they give up. The counter is working denials at scale: automate the routine, triage by dollar value and root cause, and never let the backlog become the write-off pile.";
+
+/* =====================  AUDIO  ===================== */
+let actx=null, muted=false;
+function beep(freq,dur,type='square',vol=.06,slide=0){
+  if(muted) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,actx.currentTime);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,freq+slide),actx.currentTime+dur);
+    g.gain.setValueAtTime(vol,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+const sShoot=()=>beep(820,.07,'square',.045,-460);
+const sBreak=()=>{beep(180,.16,'sawtooth',.06,-90);setTimeout(()=>beep(523,.08),90);setTimeout(()=>beep(784,.1),170);setTimeout(()=>beep(1046,.16),260);};
+const sCash =()=>{beep(988,.06,'square',.05);setTimeout(()=>beep(1319,.08,'square',.05),60);setTimeout(()=>beep(1568,.1,'square',.05),130);};
+const sCoin =()=>{beep(988,.06,'square',.045);setTimeout(()=>beep(1319,.09,'square',.045),60);};
+const sWrong=()=>beep(140,.28,'sawtooth',.07,-60);
+const sGrem =()=>{beep(620,.07,'sawtooth',.05,-300);setTimeout(()=>beep(740,.07,'sawtooth',.05,-300),90);};
+const sGremDie=()=>{beep(900,.06,'sawtooth',.05,-700);setTimeout(()=>beep(450,.1,'sawtooth',.04,-350),60);};
+const sHurt =()=>beep(220,.14,'sawtooth',.06,-130);
+const sLose =()=>{beep(300,.2,'sawtooth',.07,-200);setTimeout(()=>beep(180,.35,'sawtooth',.07,-120),190);};
+const sStage=()=>{[440,554,659,880].forEach((f,i)=>setTimeout(()=>beep(f,.12,'square',.05),i*120));};
+const sThrust=()=>beep(95,.05,'triangle',.018);
+const sBossRoar=()=>{beep(110,.4,'sawtooth',.08,-40);setTimeout(()=>beep(90,.5,'sawtooth',.08,-30),250);};
+const sAILaser=()=>{
+  beep(220,.45,'sawtooth',.07,900);
+  setTimeout(()=>beep(1200,.3,'square',.05,-400),120);
+  setTimeout(()=>beep(80,.35,'sawtooth',.06,-30),200);
+};
+function toggleMute(){ muted=!muted; document.getElementById('mute').textContent= muted?'SND OFF':'SND ON'; }
+
+/* =====================  ENGINE  ===================== */
+const $=id=>document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+function resize(){
+  const r=$('stagewrap').getBoundingClientRect();
+  DPR=Math.min(2, window.devicePixelRatio||1);
+  W=Math.max(320,r.width); H=Math.max(240,r.height);
+  cv.width=W*DPR; cv.height=H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize',resize);
+
+const GROUND_H=56;
+const MOVE=2.7, GRAV=0.32, THRUST=-0.62, MAXFALL=6.2, MAXRISE=-4.6;
+const WALL_W=150;
+const BOT_W=34, BOT_H=40;
+const FIRE_CD=14, BOLT_SPD=8;
+const GREM_GRAV=0.42;
+
+let G={}, world=null, rafId=null, lastT=0;
+const keys={left:false,right:false,thrust:false,fire:false};
+
+function startGame(){
+  G={ stage:0, score:0, lives:3, streak:0, bestStreak:0,
+      picks:0, hits:0, writeoffs:0, gremlinsDown:0,
+      correctTotal:0, bossNum:0, bossesDown:0,
+      aiCharges:0, aiProgress:0, aiUses:0, time:0,
+      leadEmail:null, ckDone:false,
+      catStats:PHASE_LABELS.map(()=>({hits:0,picks:0})) };
+  // progressive capture touchpoint 1: optional title email
+  const te=$('title-email').value.trim();
+  if(te && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(te)){
+    G.leadEmail=te;
+    submitLead({ email:te, capturedAt:'title', score:0, utm:getUTM(), ts:new Date().toISOString() });
+  }
+  track('game_start', getUTM());
+  showScreen(null);
+  showStageIntro();
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  ['hud','stagewrap','controls'].forEach(k=>$(k).classList.remove('active'));
+  if(id) $(id).classList.add('active');
+}
+function showStageIntro(){
+  const st=LEVELS[G.stage];
+  $('st-eyebrow').textContent=`CLAIM ${G.stage+1} OF ${LEVELS.length}`;
+  $('st-name').innerHTML=st.name;
+  $('st-brief').innerHTML=st.brief;
+  // a claim was just resolved \u2014 offer challenge & share
+  if(G.stage>0){
+    $('st-share').style.display='block';
+    $('st-sharehint').textContent='';
+    buildShareRow($('st-share'),'level',$('st-sharehint'));
+  }else{
+    $('st-share').style.display='none';
+  }
+  showScreen('scr-stage');
+  sStage();
+}
+function beginStage(){
+  showScreen(null);
+  ['hud','stagewrap','controls'].forEach(k=>$(k).classList.add('active'));
+  resize();
+  buildWorld(G.stage);
+  if(!rafId){ lastT=performance.now(); rafId=requestAnimationFrame(loop); }
+}
+
+/* ---------- world build ---------- */
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function groundY(){ return H-GROUND_H; }
+function fmtTime(sec){
+  sec=Math.max(0,Math.floor(sec));
+  return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+}
+function claimAmt(Q){
+  if(Q.amt) return Q.amt;
+  const m=Q.edi.match(/(\d+\.\d{2})/);
+  return m? Math.round(parseFloat(m[1])) : 800;
+}
+function spawnGremlin(x,y,opts){
+  const o=opts||{}, s=pickScheme();
+  world.gremlins.push({
+    x, y, vx:0, vy:0, onGround:false, w:24, h:30,
+    hp:o.hp||2, spd:o.spd||(1.0+world.si*0.12),
+    seed:Math.random()*9, flash:0, dead:false,
+    ambient:!!o.ambient, aggro:!o.ambient,
+    homeX:x, jumpCd:30+Math.random()*60,
+    color:s.b, accent:s.a
+  });
+}
+const FLYER_CODES=['CO-29','CO-197','CO-50','CO-18','CO-22','CO-16','CO-45','PR-204'];
+function spawnFlyer(x,y,opts){
+  const o=opts||{}, s=pickScheme();
+  world.gremlins.push({
+    x, y, vx:0, vy:0, onGround:false, w:26, h:22, flyer:true,
+    code:FLYER_CODES[Math.floor(Math.random()*FLYER_CODES.length)],
+    hp:o.hp||1, spd:1.7+world.si*0.15,
+    seed:Math.random()*9, flash:0, dead:false,
+    ambient:false, aggro:true, homeX:x, jumpCd:0,
+    color:s.b, accent:s.a
+  });
+}
+
+function makeGate(Q, wallX, qi){
+  const order=shuffle([0,1,2,3]);
+  const segs=[];
+  const lvlGap=world.lvlGap;
+  for(let i=0;i<4;i++){
+    segs.push({ lvl:i, opt:Q.opts[order[i]], letter:'ABCD'[3-i],
+                correct:order[i]===Q.correct, broken:false, cracked:false });
+  }
+  return { type:'wall', wallX, qi, Q, segs, lvlGap,
+           answered:false, started:false,
+           t:Q.timer||45, tmax:Q.timer||45, openAnim:0, payout:claimAmt(Q) };
+}
+
+function buildWorld(si){
+  const st=LEVELS[si];
+  const SEG=780;
+  world={ st, si, gates:[], pickups:[], finishX:0, lvlGap:0, hospital:null,
+          player:{x:60, y:0, vx:0, vy:0, w:BOT_W, h:BOT_H, onGround:true, face:1, fireCd:0, hurtCd:0, hover:0},
+          bolts:[], gremlins:[], parts:[], ai:null, drones:[], volleyCd:0,
+          shockwaves:[], bossProj:[], shieldFx:0,
+          fx:{rings:[], banner:null, shake:0, flash:0},
+          cam:0, paused:false, done:false };
+  const colH=H-GROUND_H-30;
+  world.lvlGap=Math.max(72, Math.min(118, colH/4));
+  st.questions.forEach((Q,qi)=>{
+    const wallX=520+qi*SEG;
+    world.gates.push(makeGate(Q,wallX,qi));
+    for(let c=0;c<2;c++){
+      world.pickups.push({ x:wallX-340+c*120, dy:40+(c%2)*140+(qi%2)*40, taken:false });
+    }
+  });
+  // the level ALWAYS ends with THE PAYER...
+  insertBossArena(world.gates[world.gates.length-1], true);
+  // ...and then the hospital, where the resolved claim funds real care
+  const bossGate=world.gates[world.gates.length-1];
+  world.hospital={ x:bossGate.wallX+250, w:230, doorX:bossGate.wallX+250+158 };
+  world.finishX=world.hospital.doorX;
+  // wild denial gremlins prowling the corridor — fuel for USE AI charges
+  for(let i=0;i<4;i++){
+    spawnGremlin(700+i*SEG*1.15, groundY()-40, {ambient:true});
+  }
+  world.player.y=groundY()-world.player.h;
+  $('qlabel').textContent='FLY TO THE NEXT DENIAL WALL…';
+  $('qedi').textContent=''; $('qtext').textContent='';
+  $('qopts').classList.remove('show');
+  $('timerbar').style.width='100%';
+  updateHUD();
+}
+function activeGate(){
+  if(!world) return null;
+  for(const g of world.gates){ if(!g.answered) return g; }
+  return null;
+}
+
+/* every 5 correct answers THE PAYER itself blocks the road — a boss gremlin
+   that tries to overwhelm you with sheer denial volume */
+function insertBossArena(afterGate, quiet){
+  G.bossNum++;
+  const x0=afterGate.wallX+160;
+  const barrierX=afterGate.wallX+660;
+  const gy=groundY();
+  const boss={
+    x:afterGate.wallX+430, y:gy-90, vx:0, vy:0, onGround:false,
+    w:64, h:84, hp:12+G.bossNum*3, maxHp:12+G.bossNum*3,
+    jumpCd:40, spawnCd:60, flash:0, dead:false, seed:Math.random()*9,
+    color:'#5a4a8a'
+  };
+  const gate={ type:'boss', wallX:barrierX, x0, qi:afterGate.qi, boss,
+               answered:false, started:false, payout:2500+G.bossNum*500 };
+  const idx=world.gates.indexOf(afterGate);
+  world.gates.splice(idx+1,0,gate);
+  if(!quiet) float('⚠ THE PAYER APPROACHES','#ffc233', afterGate.wallX+260, gy-180);
+}
+
+/* ---------- main loop ---------- */
+function loop(t){
+  rafId=requestAnimationFrame(loop);
+  const dt=Math.min(40,t-lastT)/16.7; lastT=t;
+  if(!world) return;
+  if(!world.paused) update(dt);
+  draw();
+}
+
+function update(dt){
+  // run clock: counts live gameplay only (pauses during popups & menus)
+  G.time+=dt*16.7/1000;
+  $('time').querySelector('b').textContent=fmtTime(G.time);
+  const p=world.player;
+  const g=activeGate();
+  const gy=groundY();
+
+  // --- gate activation ---
+  if(g && !g.started){
+    const trigger= g.type==='boss'? g.x0 : g.wallX-580;
+    if(p.x > trigger){
+      g.started=true;
+      if(g.type==='boss'){
+        $('qlabel').textContent='⚠ BOSS: THE PAYER';
+        $('qedi').textContent='DENIAL FLOOD INCOMING';
+        $('qtext').textContent='Your squadron shields you from the swarm — Policy Gremlins can\'t touch you. But The Payer can: dodge its leaping slams and DENIED stamp barrages, and blast it down.';
+        $('qopts').classList.remove('show');
+        $('timerbar').style.width='100%';
+        sBossRoar();
+        deployDrones();
+        for(let i=0;i<2;i++) spawnGremlin(g.boss.x+(i-1)*60, gy-200, {spd:1.2+world.si*0.12, hp:4});
+        spawnFlyer(g.boss.x, gy-220, {hp:3});
+      }else{
+        $('qlabel').textContent=g.Q.label;
+        $('qedi').textContent=g.Q.edi;
+        $('qtext').textContent=g.Q.text;
+        // mirror the wall's answers (A = top segment) so they're readable from anywhere
+        $('qopts').innerHTML=g.segs.slice().sort((a,b)=>b.lvl-a.lvl)
+          .map(s=>'<b>'+s.letter+'</b>'+s.opt).join('<br>');
+        $('qopts').classList.add('show');
+      }
+    }
+  }
+  // --- filing timer (walls only) ---
+  if(g && g.started && g.type==='wall'){
+    g.t-=dt/60;
+    const pct=Math.max(0,g.t/g.tmax);
+    $('timerbar').style.width=(pct*100)+'%';
+    // nudge the USE AI power-up as the filing window closes
+    const ab=$('aibtn');
+    ab.classList.toggle('crit', pct<=0.25);
+    ab.classList.toggle('warn', pct<=0.5 && pct>0.25);
+    if(g.t<=0){ filingExpired(g); return; }
+  }else{
+    $('aibtn').classList.remove('warn','crit');
+  }
+
+  // --- horizontal ---
+  p.vx=(keys.right?MOVE:0)-(keys.left?MOVE:0);
+  if(p.vx!==0) p.face=p.vx>0?1:-1;
+  p.x+=p.vx*dt;
+  if(p.x<10) p.x=10;
+  if(g && p.x+p.w > g.wallX-4) p.x=g.wallX-4-p.w;   // wall / arena barrier is solid
+
+  // --- flight ---
+  if(keys.thrust){
+    p.vy+=THRUST*dt;
+    p.hover+=dt;
+    if(Math.floor(p.hover)%5===0) sThrust();
+  }
+  p.vy+=GRAV*dt;
+  p.vy=Math.max(MAXRISE,Math.min(MAXFALL,p.vy));
+  p.y+=p.vy*dt;
+  if(p.y<6){ p.y=6; p.vy=Math.max(0,p.vy); }
+  p.onGround=false;
+  if(p.y+p.h>=gy){ p.y=gy-p.h; p.vy=0; p.onGround=true; }
+
+  // --- firing ---
+  if(p.fireCd>0) p.fireCd-=dt;
+  if(keys.fire && p.fireCd<=0){
+    p.fireCd=FIRE_CD;
+    world.bolts.push({ x:p.face>0? p.x+p.w : p.x-10, y:p.y+16, vx:BOLT_SPD*p.face, life:90 });
+    sShoot();
+  }
+
+  // --- bolts ---
+  for(const b of world.bolts){
+    b.x+=b.vx*dt; b.life-=dt;
+    // hit the active wall?
+    if(g && g.type==='wall' && b.alive!==false && b.vx>0 && b.x+10>=g.wallX && b.x<g.wallX+WALL_W){
+      b.alive=false;
+      if(g.started && !g.answered){
+        const lvl=Math.floor((gy-b.y)/g.lvlGap);
+        const seg=g.segs.find(s=>s.lvl===lvl && !s.broken);
+        if(seg) hitSegment(g,seg,b,false);
+        else spark(b.x,b.y);
+      }else spark(b.x,b.y);
+    }
+    // hit THE PAYER?
+    if(g && g.type==='boss' && g.started && b.alive!==false && !g.boss.dead){
+      const bo=g.boss;
+      if(b.x+10>bo.x && b.x<bo.x+bo.w && b.y>bo.y && b.y<bo.y+bo.h){
+        b.alive=false;
+        damageBoss(g,1,b.x,b.y);
+      }
+    }
+    // hit a gremlin?
+    if(b.alive!==false){
+      for(const gr of world.gremlins){
+        if(gr.dead) continue;
+        if(b.x+10>gr.x && b.x<gr.x+gr.w && b.y>gr.y-4 && b.y<gr.y+gr.h){
+          b.alive=false; gr.hp--;
+          gr.flash=8;
+          if(gr.hp<=0){
+            killGremlin(gr,true);
+          }else sHurt();
+          break;
+        }
+      }
+    }
+  }
+  world.bolts=world.bolts.filter(b=>b.alive!==false && b.life>0 && b.x<world.cam+W+100 && b.x>world.cam-100);
+
+  // --- THE PAYER boss behavior: flood the field, slam the ground, hurl stamps ---
+  if(g && g.type==='boss' && g.started && !g.boss.dead){
+    const bo=g.boss;
+    bo.vy+=GREM_GRAV*dt;
+    bo.y+=bo.vy*dt;
+    bo.onGround=false;
+    if(bo.y+bo.h>=gy){
+      bo.y=gy-bo.h; 
+      // SLAM impact: shockwaves race along the ground both ways
+      if(bo.slamming && bo.vy>4){
+        bo.slamming=false;
+        sBossRoar();
+        burst(bo.x+bo.w/2, gy-8, '#ffc233', 22);
+        world.shockwaves.push({x:bo.x+bo.w/2, dir:-1, spd:5.2, life:80, hit:false});
+        world.shockwaves.push({x:bo.x+bo.w/2, dir: 1, spd:5.2, life:80, hit:false});
+        float('⚠ GROUND SLAM — FLY!','#ffc233',bo.x+bo.w/2,gy-120);
+      }
+      bo.vy=0; bo.onGround=true;
+    }
+    if(bo.onGround && !bo.slamming){
+      bo.jumpCd-=dt;
+      bo.vx*=0.8;
+      if(bo.jumpCd<=0){
+        const towardP=Math.sign((p.x)-(bo.x))||1;
+        bo.vx=towardP*(1.6+Math.random()*1.4);
+        bo.vy=-(6.5+Math.random()*3.5);
+        bo.jumpCd=55+Math.random()*40;
+      }
+    }
+    bo.x+=bo.vx*dt;
+    bo.x=Math.max(g.x0+40, Math.min(g.wallX-bo.w-20, bo.x));
+    if(bo.flash>0) bo.flash-=dt;
+    // attack cycle: alternate SLAM and BARRAGE — keep the bot moving
+    bo.atkCd=(bo.atkCd===undefined?180:bo.atkCd)-dt;
+    if(bo.atkCd<=0 && bo.onGround){
+      bo.atkCd=230+Math.random()*60;
+      if(bo.nextAtk!=='barrage'){
+        // SLAM: huge leap toward Daniel, crash lands with shockwaves
+        bo.nextAtk='barrage';
+        bo.slamming=true;
+        bo.vy=-13;
+        bo.vx=Math.sign((p.x+p.w/2)-(bo.x+bo.w/2))*3.4;
+        beep(180,.3,'sawtooth',.07,140);
+        float('⚠ THE PAYER LEAPS','#ffc233',bo.x+bo.w/2,bo.y-24);
+      }else{
+        // BARRAGE: a fan of DENIED stamps aimed at Daniel's position
+        bo.nextAtk='slam';
+        sGrem();
+        float('⚠ DENIAL BARRAGE','#ff2d6f',bo.x+bo.w/2,bo.y-24);
+        const sx=bo.x+bo.w/2, sy=bo.y+20;
+        for(let i=0;i<4;i++){
+          const aim=Math.atan2((p.y+p.h/2)-sy,(p.x+p.w/2)-sx)+(i-1.5)*0.17;
+          world.bossProj.push({ x:sx, y:sy, vx:Math.cos(aim)*4.3, vy:Math.sin(aim)*4.3, life:130 });
+        }
+      }
+    }
+    // the flood: keep spawning denial gremlins + flying denial codes
+    bo.spawnCd-=dt;
+    const alive=world.gremlins.filter(x=>!x.dead).length;
+    if(bo.spawnCd<=0 && alive<8){
+      bo.spawnCd=130;
+      sGrem();
+      spawnGremlin(bo.x+bo.w/2-40, bo.y, {spd:1.2+world.si*0.12, hp:4});
+      spawnFlyer(bo.x+bo.w/2+40, bo.y-60, {hp:3});
+      float('+2 DENIALS FILED','#ffc233',bo.x+bo.w/2,bo.y-16);
+    }
+    // boss contact hurts more
+    if(p.hurtCd<=0 && p.x+p.w>bo.x && p.x<bo.x+bo.w && p.y+p.h>bo.y && p.y<bo.y+bo.h){
+      p.hurtCd=55;
+      G.score=Math.max(0,G.score-200); G.streak=0;
+      sHurt(); updateHUD();
+      float('−$200 BULK DENIAL','#ff2d6f',p.x,p.y-10);
+      p.vy=-5; p.x+= (p.x+p.w/2<bo.x+bo.w/2? -60:60);
+    }
+  }
+
+  // --- gremlins: ugly little bipeds that walk and JUMP (+ flying denial codes) ---
+  for(const gr of world.gremlins){
+    if(gr.dead) continue;
+    const pcx=p.x+p.w/2, gcx=gr.x+gr.w/2;
+    const dist=Math.hypot(pcx-gcx,(p.y+p.h/2)-(gr.y+gr.h/2));
+    if(gr.ambient && !gr.aggro && dist<360) gr.aggro=true;
+
+    if(gr.flyer){
+      // swooping flight straight at the bot
+      const dx=pcx-gcx, dy2=(p.y+p.h/2)-(gr.y+gr.h/2);
+      const d=Math.max(24,Math.hypot(dx,dy2));
+      gr.vx=(dx/d)*gr.spd;
+      gr.vy=(dy2/d)*gr.spd*0.8 + Math.sin(performance.now()/140+gr.seed)*1.1;
+      gr.x+=gr.vx*dt; gr.y+=gr.vy*dt;
+      gr.y=Math.min(gy-gr.h-4, Math.max(12, gr.y));
+      if(gr.flash>0) gr.flash-=dt;
+      if(p.hurtCd<=0 && p.x+p.w>gr.x && p.x<gr.x+gr.w && p.y+p.h>gr.y && p.y<gr.y+gr.h){
+        if(shieldIntercept(gr)) continue;
+        p.hurtCd=55;
+        G.score=Math.max(0,G.score-100); G.streak=0;
+        sHurt(); updateHUD();
+        float('−$100 '+gr.code+' FILED','#ff2d6f',p.x,p.y-10);
+        p.vy=-4; p.x+= (pcx<gcx? -40:40);
+        gr.vx=(gcx<pcx? -2:2);
+      }
+      continue;
+    }
+
+    gr.vy+=GREM_GRAV*dt;
+    gr.y+=gr.vy*dt;
+    gr.onGround=false;
+    if(gr.y+gr.h>=gy){ gr.y=gy-gr.h; gr.vy=0; gr.onGround=true; }
+
+    if(gr.aggro){
+      const dir=Math.sign(pcx-gcx)||1;
+      gr.vx = dir*gr.spd*(gr.onGround?1:0.6);
+      if(gr.onGround){
+        gr.jumpCd-=dt;
+        if(gr.jumpCd<=0){
+          // big leap if the bot is flying above, hop otherwise
+          const botAbove=(p.y+p.h)<gr.y-24;
+          gr.vy= botAbove? -(8.5+Math.random()*2.5) : -(4.5+Math.random()*3);
+          gr.jumpCd=45+Math.random()*55;
+        }
+      }
+    }else{
+      // ambient patrol: shamble back and forth near home, occasional hop
+      gr.vx=Math.sin(performance.now()/900+gr.seed)*0.8;
+      if(gr.x<gr.homeX-130) gr.vx=Math.abs(gr.vx);
+      if(gr.x>gr.homeX+130) gr.vx=-Math.abs(gr.vx);
+      if(gr.onGround){
+        gr.jumpCd-=dt;
+        if(gr.jumpCd<=0){ gr.vy=-(3+Math.random()*2); gr.jumpCd=90+Math.random()*120; }
+      }
+    }
+    gr.x+=gr.vx*dt;
+    if(gr.flash>0) gr.flash-=dt;
+    // contact
+    if(p.hurtCd<=0 && p.x+p.w>gr.x && p.x<gr.x+gr.w && p.y+p.h>gr.y && p.y<gr.y+gr.h){
+      if(shieldIntercept(gr)) continue;
+      p.hurtCd=55;
+      G.score=Math.max(0,G.score-100); G.streak=0;
+      sHurt(); updateHUD();
+      float('−$100 DENIAL DRAIN','#ff2d6f',p.x,p.y-10);
+      p.vy=-4; p.x+= (pcx<gcx? -40:40);
+      gr.vx= (gcx<pcx? -2:2);
+    }
+  }
+  if(p.hurtCd>0) p.hurtCd-=dt;
+
+  // --- boss hazards: shockwaves hug the ground, stamps fly at you ---
+  for(const sw of world.shockwaves){
+    sw.x+=sw.dir*sw.spd*dt; sw.life-=dt;
+    if(!sw.hit && p.hurtCd<=0 && p.y+p.h>gy-30 &&
+       Math.abs((p.x+p.w/2)-sw.x)<24){
+      sw.hit=true; p.hurtCd=55;
+      G.score=Math.max(0,G.score-150); G.streak=0;
+      sHurt(); updateHUD();
+      float('−$150 GROUND SHOCK — STAY AIRBORNE','#ff2d6f',p.x,p.y-12);
+      p.vy=-6;
+    }
+  }
+  world.shockwaves=world.shockwaves.filter(sw=>sw.life>0);
+  for(const pr of world.bossProj){
+    pr.x+=pr.vx*dt; pr.y+=pr.vy*dt; pr.life-=dt;
+    if(pr.y>gy-6){ pr.life=0; burst(pr.x,gy-6,'#ff2d6f',4); }
+    if(pr.life>0 && p.hurtCd<=0 &&
+       pr.x>p.x-6 && pr.x<p.x+p.w+6 && pr.y>p.y-6 && pr.y<p.y+p.h+6){
+      pr.life=0; p.hurtCd=55;
+      G.score=Math.max(0,G.score-150); G.streak=0;
+      sHurt(); updateHUD();
+      float('−$150 STAMPED: DENIED','#ff2d6f',p.x,p.y-12);
+      p.vy=-3; p.x+=Math.sign(pr.vx)*30;
+    }
+  }
+  world.bossProj=world.bossProj.filter(pr=>pr.life>0);
+  if(world.shieldFx>0) world.shieldFx-=dt;
+
+  // --- Daniel AI companion sequence + drone squadron ---
+  if(world.ai) updateAI(dt);
+  if(world.drones.length) updateDrones(dt);
+
+  // --- pickups ---
+  for(const c of world.pickups){
+    if(c.taken) continue;
+    const cy=gy-c.dy;
+    if(Math.abs((p.x+p.w/2)-c.x)<26 && Math.abs((p.y+p.h/2)-cy)<30){
+      c.taken=true; G.score+=50; sCoin(); updateHUD();
+      float('+$50','#3dff7c',c.x,cy);
+    }
+  }
+
+  // --- particles ---
+  for(const pa of world.parts){
+    pa.x+=pa.vx*dt; pa.y+=pa.vy*dt;
+    if(!pa.isText) pa.vy+=0.18*dt;
+    pa.life-=dt;
+  }
+  world.parts=world.parts.filter(pa=>pa.life>0);
+
+  // --- level finish: walk into the hospital with the resolved claim ---
+  if(!activeGate() && p.x>world.finishX-30 && !world.done){
+    world.done=true;
+    float('CLAIM RESOLVED — CARE FUNDED ♥','#3dff7c', world.hospital.x-30, gy-130);
+    sCash();
+    setTimeout(stageClear, 500);
+  }
+
+  // --- camera: follow Daniel, but pan ahead to keep the active wall in frame ---
+  let targetCam=Math.max(0,p.x-W*0.32);
+  if(g && g.started && !g.answered && g.type==='wall'){
+    const wantCam=g.wallX+WALL_W+26-W;          // frame the wall's right edge
+    if(wantCam>targetCam){
+      targetCam=Math.min(wantCam, Math.max(0,p.x-56));  // never push Daniel off-screen
+    }
+  }
+  world.cam+=(targetCam-world.cam)*0.08*dt;
+}
+
+/* ---------- combat outcomes ---------- */
+function killGremlin(gr,byPlayer){
+  gr.dead=true; G.gremlinsDown++; G.score+=25;
+  sGremDie(); burst(gr.x+gr.w/2,gr.y+gr.h/2,gr.color,12);
+  float(byPlayer? '+$25 POLICY GREMLIN QUASHED':'⚡ AI CLEARED +$25', byPlayer? '#3dff7c':'#e8473f', gr.x, gr.y);
+  if(byPlayer) gainAICharge();
+  updateHUD();
+}
+function damageBoss(g,amount,fx,fy){
+  const bo=g.boss;
+  bo.hp-=amount; bo.flash=8;
+  burst(fx,fy,'#ffc233',6);
+  sHurt();
+  if(bo.hp<=0 && !bo.dead){
+    bo.dead=true; g.answered=true;
+    G.bossesDown++;
+    track('boss_defeated',{bossNum:G.bossNum, score:G.score});
+    const gain=g.payout;
+    G.score+=gain;
+    sBreak(); setTimeout(sCash,260); sBossRoar();
+    celebrate(bo.x+bo.w/2, bo.y+bo.h/2, gain, true);
+    cashRain(bo.x+bo.w/2, bo.y+bo.h/2, 30);
+    updateHUD();
+    pauseToast('★ THE PAYER FALLS — BULK RECOVERY +$'+gain.toLocaleString(), BOSS_LESSON, 'var(--amber)');
+    $('qlabel').textContent='PATH CLEAR — KEEP FLYING ▶';
+    $('timerbar').style.width='100%';
+  }
+}
+function hitSegment(g,seg,b,fromAI){
+  const Q=g.Q;
+  G.picks++;
+  const cs=G.catStats[g.Q.cat]; cs.picks++;
+  if(seg.correct){
+    cs.hits++;
+    seg.broken=true; g.answered=true;
+    G.hits++; G.streak++; G.bestStreak=Math.max(G.bestStreak,G.streak);
+    G.correctTotal++;
+    if(!fromAI) gainAICharge();
+    const timeBonus=Math.round((g.t/g.tmax)*200);
+    const gain=g.payout+(G.streak>=3?150:0)+timeBonus;
+    G.score+=gain;
+    sBreak(); setTimeout(sCash,260);
+    updateHUD();
+    celebrate(g.wallX+WALL_W/2, b.y, gain, false);
+    crumbleDebris(g);
+    cashRain(g.wallX+WALL_W/2, b.y, 26);
+    pauseToast('✔ WALL DOWN — PAYER PAID +$'+gain.toLocaleString()+' UNLOCKED', Q.why, 'var(--cash)');
+    $('qlabel').textContent='PATH CLEAR — KEEP FLYING ▶';
+    $('qopts').classList.remove('show');
+    $('timerbar').style.width='100%';
+  }else{
+    seg.broken=true; seg.cracked=true;
+    G.streak=0; G.score=Math.max(0,G.score-150);
+    sWrong(); setTimeout(sGrem,200);
+    updateHUD();
+    burst(g.wallX+8, b.y, '#ff2d6f', 8);
+    float('−$150 REWORK · POLICY GREMLIN LOOSE!','#ff2d6f',g.wallX-110,b.y);
+    spawnGremlin(g.wallX+20, b.y, {spd:1.2+world.si*0.15});
+  }
+}
+function filingExpired(g){
+  const Q=g.Q;
+  g.answered=true;
+  G.lives--; G.streak=0; G.writeoffs++;
+  sLose(); updateHUD();
+  if(G.lives<=0){
+    pauseToast('✖ FILING WINDOW MISSED — CLAIM WRITTEN OFF', Q.why, 'var(--alert)', ()=>endGame(false));
+  }else{
+    pauseToast('✖ FILING WINDOW MISSED — A/R SHIELD LOST', Q.why, 'var(--alert)');
+    $('qlabel').textContent='WALL CONDEMNED — KEEP FLYING ▶';
+    $('qopts').classList.remove('show');
+    $('timerbar').style.width='100%';
+  }
+}
+
+/* ---------- USE AI: Daniel's companion drones ---------- */
+function bossActive(){
+  const g=activeGate();
+  return (g && g.type==='boss' && g.started && !g.answered)? g : null;
+}
+function dronesOut(){
+  return world && world.drones.some(d=>!d.leaving);
+}
+/* squadron point-defense: while drones are out, gremlins CANNOT touch Daniel */
+function shieldIntercept(gr){
+  if(!dronesOut()) return false;
+  const p=world.player;
+  // shield flash + hard knockback
+  world.shieldFx=12;
+  beep(1400,.06,'square',.04,-600);
+  const dir=Math.sign((gr.x+gr.w/2)-(p.x+p.w/2))||1;
+  gr.vx=dir*4.5; gr.x+=dir*34;
+  if(!gr.flyer) gr.vy=-4;
+  // nearest free drone retaliates instantly at double power
+  let best=null,bd=1e9;
+  for(const d of world.drones){
+    if(d.leaving) continue;
+    const dist=Math.hypot(d.x-gr.x,d.y-gr.y);
+    if(dist<bd){ bd=dist; best=d; }
+  }
+  if(best){
+    best.beam={tx:gr.x+gr.w/2, ty:gr.y+gr.h/2, t:10, big:true};
+    best.target=null; best.lockT=0;
+    gr.hp-=2; gr.flash=8;
+    float('⚡ INTERCEPTED','#27e8ff',gr.x,gr.y-14);
+    if(gr.hp<=0) killGremlin(gr,false);
+  }
+  return true;
+}
+function deployDrones(){
+  world.drones=[];
+  for(let i=0;i<6;i++){
+    world.drones.push({ idx:i, x:world.player.x, y:world.player.y, fireCd:20+i*8, beam:null, leaving:false, alpha:0 });
+  }
+  float('⚡ AI SQUADRON DEPLOYED — FREE USE','#e8473f', world.player.x-20, world.player.y-70);
+}
+function updateDrones(dt){
+  const p=world.player;
+  const bg=bossActive();
+  if(world.volleyCd>0) world.volleyCd-=dt;
+  for(let i=world.drones.length-1;i>=0;i--){
+    const d=world.drones[i];
+    // stay deployed after the boss falls until every nearby gremlin is cleared
+    const threats=world.gremlins.some(gr=>!gr.dead && Math.abs(gr.x-p.x)<W+260);
+    if(!bg && !threats && !d.leaving){ d.leaving=true; }
+    if(d.leaving){
+      d.y-=3*dt; d.alpha=Math.max(0,d.alpha-0.04*dt);
+      if(d.alpha<=0){ world.drones.splice(i,1); }
+      continue;
+    }
+    d.alpha=Math.min(1,d.alpha+0.05*dt);
+    // semicircle shield formation on the side of Daniel OPPOSITE the boss
+    let baseAng=Math.PI;                              // default: behind-left
+    if(bg){
+      const bo=bg.boss;
+      baseAng=Math.atan2((p.y+p.h/2)-(bo.y+bo.h/2),(p.x+p.w/2)-(bo.x+bo.w/2));
+    }
+    const th=baseAng+(d.idx/5-0.5)*Math.PI;           // 180° arc facing away from the boss
+    const tx=p.x+p.w/2+Math.cos(th)*82-8;
+    let ty=p.y+p.h/2+Math.sin(th)*64-8+Math.sin(performance.now()/200+d.idx)*3;
+    ty=Math.min(groundY()-26, Math.max(10, ty));
+    d.x+=(tx-d.x)*0.12*dt;
+    d.y+=(ty-d.y)*0.12*dt;
+    if(d.beam){ d.beam.t-=dt; if(d.beam.t<=0) d.beam=null; }
+    if(d.fireCd>0) d.fireCd-=dt;
+    // drop a target that died or wandered off
+    if(d.target && (d.target.dead ||
+       Math.hypot((d.target.x+d.target.w/2)-d.x,(d.target.y+d.target.h/2)-d.y)>620)){
+      d.target=null; d.lockT=0;
+    }
+    // acquire: nearest threat, max 2 drones locking the same one — NEVER the boss
+    if(!d.target && d.fireCd<=0){
+      let best=null, bd=540;
+      for(const gr of world.gremlins){
+        if(gr.dead) continue;
+        if(world.drones.filter(o=>o.target===gr).length>=2) continue;
+        const dist=Math.hypot((gr.x+gr.w/2)-d.x,(gr.y+gr.h/2)-d.y);
+        if(dist<bd){ bd=dist; best=gr; }
+      }
+      if(best){ d.target=best; d.lockT=0; beep(520+d.idx*40,.05,'square',.02); }
+    }
+    // lock-on takes real time — you can SEE who the squadron is tracking
+    if(d.target){
+      d.lockT+=dt;
+      if(d.lockT>=50){
+        const gr=d.target;
+        // proximity power: threats near Daniel get hit twice as hard
+        const nearUser=Math.hypot((gr.x+gr.w/2)-(p.x+p.w/2),(gr.y+gr.h/2)-(p.y+p.h/2))<150;
+        const dmg=nearUser?2:1;
+        d.beam={tx:gr.x+gr.w/2, ty:gr.y+gr.h/2, t:10, big:nearUser};
+        beep(880+d.idx*60,.05,'square',.03,-300);
+        gr.hp-=dmg; gr.flash=8;
+        if(nearUser) float('×2','#fff1ef',gr.x+gr.w/2,gr.y-16);
+        if(gr.hp<=0) killGremlin(gr,false);
+        d.target=null; d.lockT=0; d.fireCd=50+Math.random()*35;
+      }
+    }
+  }
+}
+function gainAICharge(){
+  G.aiProgress++;
+  if(G.aiProgress>=3){
+    G.aiProgress-=3; G.aiCharges++;
+    sCash();
+    if(world) float('⚡ USE AI CHARGED','#ffc233', world.player.x, world.player.y-26);
+  }
+  updateHUD();
+}
+function useAI(){
+  if(!world || world.paused || world.ai) return;
+  if(dronesOut()){
+    // FREE while the squadron is deployed: command a full volley
+    if(world.volleyCd>0) return;
+    world.volleyCd=55;
+    sAILaser();
+    let n=0;
+    for(const gr of world.gremlins){
+      if(gr.dead || Math.abs(gr.x-world.player.x)>900) continue;
+      const d=world.drones[n%Math.max(1,world.drones.length)];
+      if(d) d.beam={tx:gr.x+gr.w/2, ty:gr.y+gr.h/2, t:12};
+      burst(gr.x+gr.w/2, gr.y+gr.h/2, '#e8473f', 8);
+      killGremlin(gr,false);
+      n++;
+    }
+    float(n>0?'⚡ VOLLEY — VOLUME HANDLED':'⚡ PATH CLEAR','#e8473f', world.player.x-20, world.player.y-70);
+    return;
+  }
+  if(G.aiCharges<=0){ beep(160,.12,'square',.05); if(world) float('AI NOT CHARGED','#7e93c4',world.player.x,world.player.y-26); return; }
+  const g=activeGate();
+  if(!g || !g.started || g.answered){ beep(160,.12,'square',.05); float('NO DENIAL TARGETED','#7e93c4',world.player.x,world.player.y-26); return; }
+  const seg=g.segs.find(s=>s.correct && !s.broken);
+  if(!seg) return;
+  G.aiCharges--; G.aiUses++;
+  updateHUD();
+  beep(740,.1,'square',.05); setTimeout(()=>beep(988,.12,'square',.05),100);
+  world.ai={ phase:'emerge', t:0, mode:'wall', gate:g, seg, fired:false };
+}
+function updateAI(dt){
+  const ai=world.ai, p=world.player;
+  ai.t+=dt;
+  if(ai.phase==='emerge'){
+    ai.x=p.x+6; ai.y=p.y+20-(ai.t*1.6);
+    if(ai.t>=22){ ai.phase='aim'; ai.t=0; }
+  }else if(ai.phase==='aim'){
+    const k=Math.min(1,ai.t/22);
+    ai.x=p.x+6-(52*k); ai.y=p.y-14-(44*k);
+    if(ai.t>=24){ ai.phase='fire'; ai.t=0; sAILaser(); }
+  }else if(ai.phase==='fire'){
+    ai.x=p.x-46+Math.sin(ai.t*0.8)*1.5; ai.y=p.y-58+Math.sin(ai.t*0.5)*1.5;
+    if(!ai.fired && ai.t>=10){
+      ai.fired=true;
+      const g=ai.gate, seg=ai.seg;
+      if(!g.answered && !seg.broken){
+        const segY=groundY()-(seg.lvl+0.5)*g.lvlGap;
+        hitSegment(g, seg, {x:g.wallX, y:segY}, true);
+        burst(g.wallX+WALL_W/2, segY, '#e8473f', 22);
+      }
+    }
+    if(ai.t>=42){ ai.phase='leave'; ai.t=0; }
+  }else if(ai.phase==='leave'){
+    ai.x=p.x-46+ai.t*1.2; ai.y=p.y-58+ai.t*2.4;
+    if(ai.t>=20){ world.ai=null; }
+  }
+}
+
+/* ---------- fx ---------- */
+function burst(x,y,color,n){
+  for(let i=0;i<n;i++){
+    world.parts.push({ x,y, vx:(Math.random()-0.5)*7, vy:(Math.random()-0.8)*6,
+                       life:30+Math.random()*25, color, char:null, size:3+Math.random()*4 });
+  }
+}
+function cashRain(x,y,n){
+  for(let i=0;i<(n||14);i++){
+    world.parts.push({ x:x+(Math.random()-0.5)*60, y:y+(Math.random()-0.5)*40,
+                       vx:(Math.random()-0.5)*4.5, vy:-2-Math.random()*4,
+                       life:55+Math.random()*30, color:'#3dff7c', char:'$', size:13 });
+  }
+}
+function spark(x,y){ burst(x,y,'#7e93c4',4); }
+/* the big win moment: rings, shake, flash, and a payout banner that animates even behind the toast */
+function celebrate(x,y,gain,big){
+  world.fx.shake= big?22:14;
+  world.fx.flash=1;
+  world.fx.echo={x,y,big};
+  const cols= big? ['#ffc233','#3dff7c','#fff1ef'] : ['#27e8ff','#3dff7c','#fff1ef'];
+  for(let i=0;i<3;i++){
+    world.fx.rings.push({x, y, r:8+i*18, spd:(big?7.5:5.6)+i*1.5, max:(big?340:250), color:cols[i]});
+  }
+  world.fx.banner={ text:'+$'+gain.toLocaleString(),
+                    sub: big? '★ BULK RECOVERY ★':'PAYER PAID UNLOCKED',
+                    t:0, dur:100, hold:true, color: big? '#ffc233':'#3dff7c' };
+  burst(x,y,'#27e8ff',22); burst(x,y,'#3dff7c',18); burst(x,y,'#ffc233',14);
+}
+function crumbleDebris(g){
+  // brick chunks blown off the whole wall face
+  const gy=groundY(), wallTop=gy-4*g.lvlGap;
+  const cols=['#3a1140','#52345c','#2a0c30','#ff2d6f'];
+  for(let i=0;i<34;i++){
+    world.parts.push({
+      x:g.wallX+Math.random()*WALL_W,
+      y:wallTop+Math.random()*(gy-wallTop),
+      vx:(Math.random()-0.3)*5,
+      vy:-1-Math.random()*4,
+      life:40+Math.random()*40,
+      color:cols[i%cols.length],
+      char:null, size:4+Math.random()*7
+    });
+  }
+}
+function float(txt,color,x,y){
+  world.parts.push({ x,y, vx:0, vy:-0.45, life:160, color, char:txt, size:11, isText:true });
+}
+
+let toastTimer=null, toastAfter=null;
+function pauseToast(head,body,color,after){
+  world.paused=true;
+  toastAfter=after||null;
+  const t=$('toast');
+  $('toasthead').textContent=head; $('toasthead').style.color=color;
+  $('toastbody').textContent=body;
+  t.style.borderColor=color;
+  t.classList.add('show');
+  clearTimeout(toastTimer);   // popups now persist until the user clears them
+}
+function dismissToast(){
+  clearTimeout(toastTimer);
+  $('toast').classList.remove('show');
+  if(world){
+    world.paused=false;
+    // success graphics replay and hang for ~3s AFTER the popup is cleared
+    const bn=world.fx&&world.fx.banner;
+    if(bn && bn.hold){
+      bn.hold=false; bn.t=12; bn.dur=12+185;
+      world.fx.shake=Math.max(world.fx.shake,10);
+      world.fx.flash=Math.max(world.fx.flash,0.7);
+      if(world.fx.echo){
+        const e=world.fx.echo;
+        const cols= e.big? ['#ffc233','#3dff7c','#fff1ef'] : ['#27e8ff','#3dff7c','#fff1ef'];
+        for(let i=0;i<3;i++){
+          world.fx.rings.push({x:e.x, y:e.y, r:8+i*18, spd:(e.big?7:5.4)+i*1.4, max:(e.big?320:240), color:cols[i]});
+        }
+      }
+    }
+  }
+  const fn=toastAfter; toastAfter=null;
+  fn&&fn();
+}
+
+
+/* ---------- challenge & share (level ends + final results) ----------
+   TODO(prod): sandboxed embeds may need allow-popups for the external
+   share windows; clipboard text is always copied first as the fallback. */
+function shareText(ctx){
+  const t=fmtTime(G.time);
+  if(ctx==='final' && LAST){
+    return 'I just scored Denial IQ '+LAST.iq+' ('+LAST.rating+') and recovered $'+LAST.score.toLocaleString()+' in '+t+' playing DENIAL BLASTER \u2014 Red Sky Health\u2019s denial remediation arcade. Think you can beat me? '+GAME_URL;
+  }
+  return 'I just resolved CLAIM FILE '+CLAIM_IDS[Math.max(0,G.stage-1)]+' in DENIAL BLASTER \u2014 $'+G.score.toLocaleString()+' recovered in '+t+'. Think you can keep up? '+GAME_URL;
+}
+function copyText(txt,hintEl,msg){
+  const done=()=>{ if(hintEl) hintEl.textContent=msg||'Copied \u2014 paste it anywhere!'; };
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done).catch(()=>{ prompt('Copy:',txt); done(); }); }
+    else{ prompt('Copy:',txt); done(); }
+  }catch(e){ try{ prompt('Copy:',txt); }catch(_){} }
+}
+function openExternal(url){
+  try{
+    const a=document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+  }catch(e){}
+}
+function buildShareRow(container, ctx, hintEl){
+  container.innerHTML=
+    '<div class="sharelbl px">CHALLENGE A COLLEAGUE</div>'+
+    '<div class="sharebtns">'+
+      '<button type="button" class="sharebtn in">in MESSAGE</button>'+
+      '<button type="button" class="sharebtn em">\u2709 EMAIL</button>'+
+    '</div>'+
+    '<div class="sharelbl px">SHARE YOUR RESULTS</div>'+
+    '<div class="sharebtns">'+
+      '<button type="button" class="sharebtn in">in POST</button>'+
+      '<button type="button" class="sharebtn xx">\ud835\udd4f POST</button>'+
+      '<button type="button" class="sharebtn nv">\u2934 SHARE\u2026</button>'+
+    '</div>';
+  const [liMsg,em,liPost,xPost,nat]=container.querySelectorAll('.sharebtn');
+  tap(liMsg,()=>{ copyText(shareText(ctx),hintEl,'Challenge copied \u2014 paste it into your LinkedIn message.');
+                  openExternal('https://www.linkedin.com/messaging/'); track('challenge_linkedin',{ctx}); });
+  tap(em,()=>{ const txt=shareText(ctx);
+               openExternal('mailto:?subject='+encodeURIComponent('Beat my Denial Blaster run?')+'&body='+encodeURIComponent(txt));
+               copyText(txt,hintEl,'Email opened (text also copied).'); track('challenge_email',{ctx}); });
+  tap(liPost,()=>{ copyText(shareText(ctx),hintEl,'Post text copied \u2014 paste into your LinkedIn post.');
+                   openExternal('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(GAME_URL)); track('share_linkedin',{ctx}); });
+  tap(xPost,()=>{ openExternal('https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText(ctx)));
+                  track('share_x',{ctx}); });
+  tap(nat,()=>{ const txt=shareText(ctx);
+    if(navigator.share){ navigator.share({title:'Denial Blaster', text:txt, url:GAME_URL}).then(()=>track('share_native',{ctx})).catch(()=>{}); }
+    else copyText(txt,hintEl,'Sharing not available here \u2014 text copied instead.');
+  });
+}
+
+function stageClear(){
+  track('stage_complete',{stage:G.stage+1, name:LEVELS[G.stage].name, score:G.score});
+  G.stage++;
+  if(G.stage>=LEVELS.length){ endGame(true); return; }
+  // progressive capture touchpoint 2: checkpoint after the first claim file
+  if(G.stage===1 && !G.leadEmail && !G.ckDone){ openCheckpoint(); return; }
+  showStageIntro();
+}
+
+/* ---------- checkpoint capture (shown once, skippable) ---------- */
+function openCheckpoint(){
+  G.ckDone=true;
+  world=null;
+  ['hud','stagewrap','controls'].forEach(k=>$(k).classList.remove('active'));
+  $('ck-score').textContent='$'+G.score.toLocaleString();
+  $('ck-err').textContent='';
+  $('leadform').style.display='none';
+  $('leadok').style.display='none';
+  $('checkform').style.display='block';
+  $('leadmodal').classList.add('open');
+  track('checkpoint_shown',{score:G.score});
+}
+$('ck-submit').addEventListener('click',()=>{
+  const email=$('ck-email').value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ $('ck-err').textContent='That email doesn\'t look valid.'; return; }
+  G.leadEmail=email;
+  submitLead({ email, capturedAt:'checkpoint', score:G.score,
+               stageReached:G.stage, utm:getUTM(), ts:new Date().toISOString() });
+  track('checkpoint_captured',{score:G.score});
+  closeLead();
+  showStageIntro();
+});
+$('ck-skip').addEventListener('click',()=>{
+  track('checkpoint_skipped',{score:G.score});
+  closeLead();
+  showStageIntro();
+});
+function updateHUD(){
+  $('score').querySelector('b').textContent='$'+G.score.toLocaleString();
+  $('streak').querySelector('b').textContent=G.streak;
+  $('lives').querySelector('b').textContent='♥'.repeat(G.lives)+'·'.repeat(Math.max(0,3-G.lives));
+  const squadron=world? dronesOut():false;
+  if(squadron){
+    $('ailbl').textContent='AI AUTO · FREE';
+    $('aibar').style.width='100%';
+    $('aibtn').classList.add('ready');
+  }else{
+    $('ailbl').textContent='USE AI ⚡'+G.aiCharges;
+    $('aibar').style.width=(G.aiProgress/3*100)+'%';
+    $('aibtn').classList.toggle('ready',G.aiCharges>0);
+  }
+  const ag=world? activeGate():null;
+  $('stage').querySelector('b').textContent= ag&&ag.type==='boss'? `${G.stage+1}-BOSS`
+    : `${G.stage+1}-${ag? ag.qi+1 : LEVELS[Math.min(G.stage,LEVELS.length-1)].questions.length}`;
+}
+const CAT_NAMES=['DECODE','ROOT CAUSE','TRIAGE','PREVENT','REMEDIATE'];
+let LAST=null;   // last game results, used by lead/scorecard/share
+
+function endGame(won){
+  world=null;
+  ['hud','stagewrap','controls'].forEach(k=>$(k).classList.remove('active'));
+  const acc=G.picks? Math.round(G.hits/G.picks*100):0;
+  let rating;
+  if(won && acc>=90) rating='★ REVENUE CYCLE LEGEND ★';
+  else if(won && acc>=75) rating='APPEALS ACE';
+  else if(won) rating='FOLLOW-UP SPECIALIST';
+  else if(G.score>=3000) rating='DENIAL ANALYST IN TRAINING';
+  else rating='DENIAL ROOKIE';
+  // Denial IQ: accuracy-weighted, with completion + streak credit
+  const progress=Math.min(1,(G.stage+(won?0:0))/LEVELS.length);
+  const iq=Math.min(100, Math.round(acc*0.72 + progress*20 + Math.min(8,G.bestStreak)));
+  const cats=G.catStats.map((c,i)=>({ name:CAT_NAMES[i], pct: c.picks? Math.round(c.hits/c.picks*100) : null }));
+  LAST={ won, rating, iq, score:G.score, acc, cats, time:G.time,
+         bosses:G.bossesDown, gremlins:G.gremlinsDown, aiUses:G.aiUses, streak:G.bestStreak };
+
+  $('end-title').textContent= won? 'PAYER DEFEATED' : 'A/R EXHAUSTED';
+  $('end-title').classList.toggle('bad',!won);
+  $('end-rating').textContent=rating;
+  $('end-iq').textContent=iq;
+  $('end-stats').innerHTML=
+    `RECOVERED: <b>$${G.score.toLocaleString()}</b> · TIME: <b>${fmtTime(G.time)}</b><br>`+
+    `ACCURACY: <b>${acc}%</b> · STREAK: <b>${G.bestStreak}</b><br>`+
+    `BOSSES: <b>${G.bossesDown}</b> · POLICY GREMLINS: <b>${G.gremlinsDown}</b> · AI: <b>${G.aiUses}×</b>`;
+  $('end-report').innerHTML='<div class="cat" style="margin-bottom:8px"><span style="width:auto;color:#ffc233">YOUR DENIAL SKILLS BY CATEGORY</span></div>'+
+    cats.map(c=>{
+      const pct=c.pct===null? 0:c.pct;
+      const lbl=c.pct===null? '—' : c.pct+'%';
+      return `<div class="cat"><span>${c.name}</span><div class="barwrap"><div class="bar" style="width:${pct}%"></div></div><div class="pct">${lbl}</div></div>`;
+    }).join('');
+  // weakest category = the personalized hook
+  const played=cats.filter(c=>c.pct!==null);
+  if(played.length){
+    const weak=played.reduce((a,b)=>a.pct<=b.pct?a:b);
+    $('end-pitch').innerHTML=
+      `Your toughest category was <b>${weak.name}</b> — that's exactly where denials quietly become write-offs. `+
+      `The AI squadron that handled the flood for you? In real life it's called <b>Daniel™</b> by Red Sky Health: `+
+      `it works your actual denials at scale, and fees come only from recovered revenue.`;
+  }
+  $('share-hint').textContent='';
+  buildShareRow($('end-share'),'final',$('share-hint'));
+  showScreen('scr-end');
+  track('game_over',{won, score:G.score, accuracy:acc, denialIQ:iq,
+    categories:Object.fromEntries(cats.map(c=>[c.name,c.pct]))});
+  track('report_viewed',{denialIQ:iq});
+  won? sStage(): sLose();
+}
+
+/* ---------- lead capture (MVP stub) ---------- */
+function openLead(){
+  $('lead-score').textContent='$'+(LAST?LAST.score:0).toLocaleString();
+  $('leadform').style.display='block';
+  $('leadok').style.display='none';
+  $('checkform').style.display='none';
+  if(G && G.leadEmail) $('lf-email').value=G.leadEmail;
+  $('lf-err').textContent='';
+  $('leadmodal').classList.add('open');
+  track('lead_open',{denialIQ:LAST?LAST.iq:null});
+}
+function closeLead(){ $('leadmodal').classList.remove('open'); }
+$('btn-lead').addEventListener('click',openLead);
+$('lf-cancel').addEventListener('click',closeLead);
+$('lf-done').addEventListener('click',closeLead);
+$('lf-submit').addEventListener('click',()=>{
+  const name=$('lf-name').value.trim(), email=$('lf-email').value.trim(),
+        org=$('lf-org').value.trim(), vol=$('lf-vol').value;
+  if(!name||!email||!org){ $('lf-err').textContent='Name, work email, and organization are required.'; return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ $('lf-err').textContent='That email doesn\'t look valid.'; return; }
+  submitLead({ name, email, org, claimVolume:vol||null, capturedAt:'end',
+    denialIQ:LAST?LAST.iq:null, rating:LAST?LAST.rating:null,
+    score:LAST?LAST.score:null, accuracy:LAST?LAST.acc:null,
+    categoryScores:LAST?LAST.cats:null, utm:getUTM(), ts:new Date().toISOString() });
+  $('leadform').style.display='none';
+  $('leadok').style.display='block';
+});
+
+/* ---------- shareable scorecard PNG ---------- */
+$('btn-card').addEventListener('click',()=>{
+  if(!LAST) return;
+  const c=document.createElement('canvas'); c.width=800; c.height=460;
+  const x=c.getContext('2d');
+  x.fillStyle='#0b0e3a'; x.fillRect(0,0,800,460);
+  const grd=x.createRadialGradient(400,140,40,400,230,520);
+  grd.addColorStop(0,'#11154d'); grd.addColorStop(1,'#06061c');
+  x.fillStyle=grd; x.fillRect(0,0,800,460);
+  for(let yy=0;yy<460;yy+=4){ x.fillStyle='rgba(0,0,0,.14)'; x.fillRect(0,yy,800,1); }
+  x.textAlign='center';
+  x.fillStyle='#ffc233'; x.font='12px "Press Start 2P", monospace';
+  x.fillText('RED SKY ARCADE · DENIAL BLASTER',400,46);
+  x.fillStyle='#27e8ff'; x.font='30px "Press Start 2P", monospace';
+  x.shadowColor='#27e8ff'; x.shadowBlur=18;
+  x.fillText(LAST.rating.replace(/★/g,'*'),400,104);
+  x.shadowBlur=0;
+  x.fillStyle='#7e93c4'; x.font='11px "Press Start 2P", monospace';
+  x.fillText('DENIAL IQ',195,158);
+  x.fillText('RECOVERED',400,158);
+  x.fillText('TIME',610,158);
+  x.fillStyle='#3dff7c'; x.font='32px "Press Start 2P", monospace';
+  x.fillText(String(LAST.iq),195,204);
+  x.fillText('$'+LAST.score.toLocaleString(),400,204);
+  x.fillText(fmtTime(LAST.time||0),610,204);
+  // category bars
+  x.textAlign='left';
+  LAST.cats.forEach((ct,i)=>{
+    const by=252+i*32, pct=ct.pct===null?0:ct.pct;
+    x.fillStyle='#9fb6d8'; x.font='10px "Press Start 2P", monospace';
+    x.fillText(ct.name,90,by+12);
+    x.fillStyle='#101542'; x.fillRect(250,by,400,16);
+    x.fillStyle= pct>=70?'#3dff7c': pct>=40?'#ffc233':'#ff2d6f';
+    x.fillRect(250,by,400*pct/100,16);
+    x.strokeStyle='#1d2a6e'; x.strokeRect(250,by,400,16);
+    x.fillStyle='#e8f6ff'; x.fillText(ct.pct===null?'—':pct+'%',664,by+13);
+  });
+  x.textAlign='center';
+  x.fillStyle='#e8473f'; x.font='11px "Press Start 2P", monospace';
+  x.fillText('POWERED BY DANIEL(TM) · REDSKYHEALTH.COM',400,438);
+  const a=document.createElement('a');
+  a.download='denial-blaster-scorecard.png';
+  a.href=c.toDataURL('image/png');
+  a.click();
+  $('share-hint').textContent='Scorecard downloaded — share it on LinkedIn!';
+  track('scorecard_download',{denialIQ:LAST.iq});
+});
+
+/* ---------- challenge & share row is built into the end screen by endGame() ---------- */
+
+/* =====================  RENDER  ===================== */
+function draw(){
+  if(!world) return;
+  const cam=world.cam, gy=groundY();
+  ctx.clearRect(0,0,W,H);
+
+  // sky
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#0b0e3a'); sky.addColorStop(1,'#06061c');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+  // parallax payer towers
+  ctx.save();
+  ctx.translate(-cam*0.35,0);
+  for(let i=0;i<48;i++){
+    const tx=i*340, th=90+(i*53)%130;
+    ctx.fillStyle='rgba(21,32,95,.55)';
+    ctx.fillRect(tx, gy-th, 120, th);
+    ctx.fillStyle='rgba(39,232,255,.10)';
+    for(let wy=gy-th+12; wy<gy-12; wy+=22)
+      for(let wx=tx+12; wx<tx+108; wx+=24)
+        ctx.fillRect(wx,wy,10,10);
+  }
+  ctx.restore();
+
+  ctx.save();
+  const shk=world.fx.shake;
+  if(shk>0){
+    world.fx.shake=Math.max(0,shk-0.7);
+    ctx.translate(-cam+(Math.random()-0.5)*shk, (Math.random()-0.5)*shk*0.7);
+  }else{
+    ctx.translate(-cam,0);
+  }
+
+  // ground
+  ctx.fillStyle='#0a1030'; ctx.fillRect(cam-50,gy,W+100,GROUND_H);
+  ctx.fillStyle='#27e8ff'; ctx.fillRect(cam-50,gy,W+100,3);
+  ctx.fillStyle='rgba(39,232,255,.12)';
+  for(let x=Math.floor(cam/48)*48; x<cam+W+48; x+=48) ctx.fillRect(x,gy+8,24,4);
+
+  // pickups
+  for(const c of world.pickups){
+    if(c.taken) continue;
+    const cy=gy-c.dy + Math.sin((performance.now()/300)+c.x)*4;
+    ctx.fillStyle='#3dff7c';
+    ctx.beginPath(); ctx.arc(c.x,cy,11,0,7); ctx.fill();
+    ctx.fillStyle='#04102a'; ctx.font='bold 13px IBM Plex Mono';
+    ctx.textAlign='center'; ctx.fillText('$',c.x,cy+5);
+  }
+
+  // gates
+  for(const g of world.gates){
+    if(g.type==='wall') drawGate(g,gy);
+    else drawBossArena(g,gy);
+  }
+
+  // hospital finale — deliver the resolved claim
+  drawHospital(world.hospital, gy);
+
+  // bolts
+  for(const b of world.bolts){
+    ctx.fillStyle='#27e8ff';
+    ctx.fillRect(b.x,b.y-2,14,4);
+    ctx.fillStyle='rgba(39,232,255,.4)';
+    ctx.fillRect(b.x-10*Math.sign(b.vx),b.y-1,10,2);
+  }
+
+  // gremlins + flying denial codes
+  for(const gr of world.gremlins){
+    if(gr.dead) continue;
+    if(gr.flyer) drawFlyer(gr);
+    else drawGremlin(gr);
+  }
+
+  // drone squadron (boss levels)
+  for(const d of world.drones) drawDrone(d);
+
+  // particles & floats
+  for(const pa of world.parts){
+    const a=Math.min(1,pa.life/25);
+    if(pa.char){
+      ctx.globalAlpha=a;
+      ctx.font=(pa.isText?'11px "Press Start 2P"':'bold '+pa.size+'px "IBM Plex Mono"');
+      ctx.textAlign='center';
+      if(pa.isText){
+        ctx.lineWidth=4; ctx.strokeStyle='rgba(4,8,30,.9)'; ctx.lineJoin='round';
+        ctx.strokeText(pa.char,pa.x,pa.y);
+      }
+      ctx.fillStyle=pa.color;
+      ctx.fillText(pa.char,pa.x,pa.y);
+      ctx.globalAlpha=1;
+    }else{
+      ctx.fillStyle=pa.color; ctx.globalAlpha=a;
+      ctx.fillRect(pa.x,pa.y,pa.size,pa.size);
+      ctx.globalAlpha=1;
+    }
+  }
+
+  // success shockwave rings (world space, animate even while the toast pauses gameplay)
+  for(let i=world.fx.rings.length-1;i>=0;i--){
+    const rg=world.fx.rings[i];
+    rg.r+=rg.spd;
+    const a=Math.max(0,1-rg.r/rg.max);
+    if(a<=0){ world.fx.rings.splice(i,1); continue; }
+    ctx.strokeStyle=rg.color; ctx.globalAlpha=a*0.9;
+    ctx.lineWidth=2+5*a;
+    ctx.beginPath(); ctx.arc(rg.x,rg.y,rg.r,0,7); ctx.stroke();
+    ctx.globalAlpha=1;
+  }
+
+  // boss hazards
+  for(const sw of world.shockwaves){
+    const a=Math.min(1,sw.life/40);
+    ctx.fillStyle='rgba(255,194,51,'+(0.85*a)+')';
+    for(let i=0;i<3;i++){
+      const hx=sw.x-sw.dir*i*10, hh=16-i*4;
+      ctx.beginPath();
+      ctx.moveTo(hx-7,gy); ctx.lineTo(hx,gy-hh); ctx.lineTo(hx+7,gy); ctx.fill();
+    }
+  }
+  for(const pr of world.bossProj){
+    ctx.save();
+    ctx.translate(pr.x,pr.y);
+    ctx.rotate(Math.atan2(pr.vy,pr.vx));
+    ctx.fillStyle='#f5f0ea'; ctx.fillRect(-9,-6,18,12);
+    ctx.strokeStyle='#ff2d6f'; ctx.lineWidth=1.5; ctx.strokeRect(-9,-6,18,12);
+    ctx.fillStyle='#ff2d6f'; ctx.fillRect(-7,-2,14,4);
+    ctx.restore();
+  }
+
+  // player bot
+  drawBot(world.player);
+
+  // squadron shield flash when a gremlin is intercepted
+  if(world.shieldFx>0){
+    const p=world.player;
+    ctx.strokeStyle='rgba(39,232,255,'+(world.shieldFx/12*0.9)+')';
+    ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(p.x+p.w/2,p.y+p.h/2,34+(12-world.shieldFx)*2,0,7); ctx.stroke();
+  }
+
+  // Daniel's AI companion drone + laser(s)
+  if(world.ai) drawAI();
+
+  ctx.restore();
+
+  // success flash
+  if(world.fx.flash>0){
+    ctx.fillStyle='rgba(61,255,124,'+(world.fx.flash*0.28)+')';
+    ctx.fillRect(0,0,W,H);
+    world.fx.flash=Math.max(0,world.fx.flash-0.05);
+  }
+  // payout banner: zooms in huge, hangs, fades
+  const bn=world.fx.banner;
+  if(bn){
+    if(bn.hold){ bn.t=Math.min(bn.t+1,12); }   // frozen at full size behind the popup
+    else bn.t++;
+    if(!bn.hold && bn.t>bn.dur){ world.fx.banner=null; }
+    else{
+      const pop=Math.min(1,bn.t/10);
+      const scale=0.4+0.6*(1-Math.pow(1-pop,3));
+      const a= bn.t>bn.dur-22? (bn.dur-bn.t)/22 : 1;
+      ctx.save();
+      ctx.globalAlpha=a;
+      ctx.translate(W/2, H*0.30);
+      ctx.scale(scale,scale);
+      ctx.textAlign='center';
+      ctx.shadowColor=bn.color; ctx.shadowBlur=26;
+      ctx.lineJoin='round';
+      ctx.font='30px "Press Start 2P"';
+      ctx.lineWidth=8; ctx.strokeStyle='rgba(4,8,30,.95)';
+      ctx.strokeText(bn.text,0,0);
+      ctx.fillStyle=bn.color;
+      ctx.fillText(bn.text,0,0);
+      ctx.font='11px "Press Start 2P"';
+      ctx.shadowBlur=14;
+      ctx.lineWidth=5;
+      ctx.strokeText(bn.sub,0,28);
+      ctx.fillStyle='#fff1ef';
+      ctx.fillText(bn.sub,0,28);
+      ctx.restore();
+    }
+  }
+}
+
+/* --- the hospital: where a resolved claim becomes funded patient care --- */
+function drawHospital(h,gy){
+  if(!h) return;
+  const t=performance.now();
+  const x=h.x, w=h.w, hh=200, top=gy-hh;
+  // building
+  ctx.fillStyle='#cfdcef'; ctx.fillRect(x,top,w,hh);
+  ctx.fillStyle='#9fb3d0'; ctx.fillRect(x,top,w,8);                 // roofline
+  ctx.fillStyle='#b9c9e2'; ctx.fillRect(x-10,top-16,w+20,16);       // roof slab
+  // windows
+  for(let r=0;r<3;r++) for(let c=0;c<4;c++){
+    ctx.fillStyle= ((r*4+c+Math.floor(t/900))%3===0)? 'rgba(255,228,150,.85)':'#27486e';
+    ctx.fillRect(x+18+c*52, top+26+r*48, 30, 26);
+  }
+  // red cross sign
+  ctx.fillStyle='#ffffff'; ctx.fillRect(x+w/2-22, top-44, 44, 32);
+  ctx.fillStyle='#e8473f';
+  ctx.fillRect(x+w/2-5, top-40, 10, 24);
+  ctx.fillRect(x+w/2-12, top-33, 24, 10);
+  ctx.fillStyle='#27486e'; ctx.font='8px "Press Start 2P"'; ctx.textAlign='center';
+  ctx.fillText('HOSPITAL', x+w/2, top+18);
+  // door — the level exit
+  const dx=h.doorX-22;
+  ctx.fillStyle='#16263d'; ctx.fillRect(dx, gy-64, 44, 64);
+  ctx.fillStyle='#3dff7c'; ctx.fillRect(dx, gy-64, 44, 4);
+  const glow=0.5+0.4*Math.sin(t/350);
+  ctx.fillStyle='rgba(61,255,124,'+glow+')';
+  ctx.font='8px "Press Start 2P"';
+  ctx.fillText('ENTER ▶', dx+22, gy-72);
+  // NPCs waiting outside: the doctor and the patient this claim funds
+  drawDoctor(x-70, gy, t);
+  drawPatient(x-36, gy, t);
+}
+function drawDoctor(x,gy,t){
+  const y=gy-46;
+  const wave=Math.sin(t/260)*7;
+  // legs
+  ctx.fillStyle='#27486e'; ctx.fillRect(x+5,y+32,6,14); ctx.fillRect(x+14,y+32,6,14);
+  // white coat over scrubs
+  ctx.fillStyle='#27e8ff'; ctx.fillRect(x+4,y+14,17,18);
+  ctx.fillStyle='#f5f8fd'; ctx.fillRect(x+2,y+13,6,20); ctx.fillRect(x+17,y+13,6,20);
+  // waving arm
+  ctx.strokeStyle='#f5f8fd'; ctx.lineWidth=4; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x+21,y+17); ctx.lineTo(x+30,y+6-wave); ctx.stroke();
+  ctx.fillStyle='#ffd9b3'; ctx.fillRect(x+28,y+2-wave,5,5);
+  // head
+  ctx.fillStyle='#ffd9b3'; ctx.fillRect(x+6,y,13,13);
+  ctx.fillStyle='#3a2a1a'; ctx.fillRect(x+5,y-2,15,4);
+  ctx.fillStyle='#04102a'; ctx.fillRect(x+9,y+4,2,2); ctx.fillRect(x+14,y+4,2,2);
+  // stethoscope
+  ctx.strokeStyle='#27486e'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(x+12,y+18,6,0.3,2.6); ctx.stroke();
+  ctx.fillStyle='#27486e'; ctx.beginPath(); ctx.arc(x+7,y+24,2.5,0,7); ctx.fill();
+}
+function drawPatient(x,gy,t){
+  const y=gy-42;
+  const bob=Math.sin(t/300+2)*1.5;
+  // legs
+  ctx.fillStyle='#9fb3d0'; ctx.fillRect(x+5,y+28,5,14); ctx.fillRect(x+13,y+28,5,14);
+  // gown
+  ctx.fillStyle='#b9a7e0';
+  ctx.beginPath();
+  ctx.moveTo(x+3,y+12+bob); ctx.lineTo(x+20,y+12+bob); ctx.lineTo(x+22,y+30); ctx.lineTo(x+1,y+30);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#8f7ac0'; ctx.fillRect(x+3,y+12+bob,17,3);
+  // arms
+  ctx.strokeStyle='#ffd9b3'; ctx.lineWidth=3.5; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x+3,y+15+bob); ctx.lineTo(x-2,y+24+bob); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+20,y+15+bob); ctx.lineTo(x+25,y+24+bob); ctx.stroke();
+  // head with bandage
+  ctx.fillStyle='#ffd9b3'; ctx.fillRect(x+5,y+bob,13,12);
+  ctx.fillStyle='#f5f8fd'; ctx.fillRect(x+4,y-1+bob,15,5);
+  ctx.fillStyle='#e8473f'; ctx.fillRect(x+9,y+bob,4,3);
+  ctx.fillStyle='#04102a'; ctx.fillRect(x+8,y+6+bob,2,2); ctx.fillRect(x+13,y+6+bob,2,2);
+  // smile
+  ctx.fillRect(x+9,y+9.5+bob,5,1.5);
+}
+
+function drawGate(g,gy){
+  // answered walls crumble brick by brick into a rubble pile
+  if(g.answered){
+    g.openAnim=Math.min(2.4,(g.openAnim||0)+0.028);
+    drawCrumble(g,gy);
+    ctx.fillStyle='#3dff7c'; ctx.font='9px "Press Start 2P"'; ctx.textAlign='center';
+    ctx.fillText('PAID ✔', g.wallX+WALL_W/2, gy-4*g.lvlGap-10);
+    return;
+  }
+  for(const seg of g.segs){
+    const top=gy-(seg.lvl+1)*g.lvlGap;
+    const hgt=g.lvlGap-4;
+    ctx.fillStyle= seg.cracked? '#52345c' : '#3a1140';
+    ctx.fillRect(g.wallX,top,WALL_W,hgt);
+    ctx.strokeStyle='rgba(255,45,111,.35)'; ctx.lineWidth=1;
+    for(let by=top+14; by<top+hgt; by+=16){
+      ctx.beginPath(); ctx.moveTo(g.wallX,by); ctx.lineTo(g.wallX+WALL_W,by); ctx.stroke();
+    }
+    ctx.strokeStyle= seg.cracked? '#7a3550' : '#ff2d6f';
+    ctx.lineWidth=2;
+    ctx.strokeRect(g.wallX,top,WALL_W,hgt);
+    ctx.fillStyle= seg.cracked? '#7a3550':'#ff2d6f';
+    ctx.fillRect(g.wallX+4, top+4, 18, 15);
+    ctx.fillStyle='#04102a'; ctx.font='9px "Press Start 2P"'; ctx.textAlign='center';
+    ctx.fillText(seg.letter, g.wallX+13, top+15);
+    ctx.fillStyle= seg.cracked? '#5a5f86':'#e8f6ff';
+    ctx.font='500 10px "IBM Plex Mono"';
+    wrapText(seg.opt, g.wallX+WALL_W/2+8, top+16, WALL_W-34, 12, Math.floor((hgt-12)/12));
+    if(seg.cracked){
+      ctx.strokeStyle='#ff2d6f'; ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(g.wallX+10,top+8); ctx.lineTo(g.wallX+WALL_W-10,top+hgt-8);
+      ctx.moveTo(g.wallX+WALL_W-10,top+8); ctx.lineTo(g.wallX+10,top+hgt-8);
+      ctx.stroke();
+    }
+  }
+  ctx.fillStyle='#ff2d6f'; ctx.font='10px "Press Start 2P"'; ctx.textAlign='center';
+  ctx.fillText('DENIED', g.wallX+WALL_W/2, gy-4*g.lvlGap-10);
+}
+
+/* the wall tears itself apart: bricks shake loose, tumble, and pile up as rubble */
+function drawCrumble(g,gy){
+  const a=g.openAnim;
+  const wallTop=gy-4*g.lvlGap, wallH=4*g.lvlGap;
+  const BW=WALL_W/4, BH=16;
+  const rows=Math.ceil(wallH/BH);
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<4;c++){
+      // deterministic per-brick stagger
+      const hash=((r*7+c*13+(g.wallX|0))%17)/17;
+      const prog=Math.max(0, a-hash*0.9);
+      if(prog>1.5) continue;                       // brick has landed in the pile
+      const fall=prog*prog*210;
+      const by=wallTop+r*BH+fall;
+      if(by>gy-6) continue;
+      const drift=Math.sin(hash*40)*prog*26;
+      const rot=(hash-0.5)*prog*1.6;
+      const alpha=Math.max(0.15, 1-prog*0.45);
+      ctx.save();
+      ctx.globalAlpha=alpha;
+      ctx.translate(g.wallX+c*BW+BW/2+drift, by+BH/2);
+      ctx.rotate(rot);
+      ctx.fillStyle=(r+c)%2? '#3a1140':'#2a0c30';
+      ctx.fillRect(-BW/2+1,-BH/2+1,BW-2,BH-2);
+      ctx.strokeStyle='rgba(255,45,111,.3)'; ctx.lineWidth=1;
+      ctx.strokeRect(-BW/2+1,-BH/2+1,BW-2,BH-2);
+      ctx.restore();
+    }
+  }
+  // dust drifting out of the collapse
+  if(a<1.4 && Math.random()<0.5){
+    world.parts.push({ x:g.wallX+Math.random()*WALL_W, y:gy-Math.random()*wallH*Math.max(0.2,1-a/2),
+                       vx:(Math.random()-0.5)*1.5, vy:-0.4-Math.random(),
+                       life:24+Math.random()*20, color:'rgba(160,140,170,0.8)', char:null, size:2+Math.random()*3 });
+  }
+  // rubble pile builds at the base
+  const pile=Math.min(1,a/1.4);
+  if(pile>0.1){
+    ctx.fillStyle='#241030';
+    ctx.beginPath();
+    ctx.moveTo(g.wallX-26,gy);
+    ctx.quadraticCurveTo(g.wallX+WALL_W*0.3, gy-34*pile, g.wallX+WALL_W*0.55, gy-20*pile);
+    ctx.quadraticCurveTo(g.wallX+WALL_W*0.85, gy-30*pile, g.wallX+WALL_W+26, gy);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#3a1140';
+    const seedX=g.wallX|0;
+    for(let i=0;i<9;i++){
+      const rx=g.wallX-14+((seedX*(i+3))%(WALL_W+24));
+      const rh=4+((seedX*(i+7))%9);
+      ctx.save();
+      ctx.translate(rx, gy-rh*pile-2);
+      ctx.rotate(((i*37)%10-5)*0.06);
+      ctx.fillRect(0,0,BW*0.7,BH*0.7);
+      ctx.restore();
+    }
+  }
+}
+
+function drawBossArena(g,gy){
+  const t=performance.now();
+  // arena barrier — pulsing gold, holds until THE PAYER falls
+  if(!g.answered){
+    const pulse=0.5+0.5*Math.sin(t/250);
+    ctx.fillStyle='rgba(255,194,51,'+(0.22+0.18*pulse)+')';
+    ctx.fillRect(g.wallX,0,14,gy);
+    ctx.fillStyle='#ffc233'; ctx.fillRect(g.wallX,0,3,gy); ctx.fillRect(g.wallX+11,0,3,gy);
+    if(g.started){
+      // boss HP bar pinned above the arena
+      const bo=g.boss;
+      const bx=bo.x+bo.w/2;
+      ctx.fillStyle='#101542'; ctx.fillRect(bx-60,40,120,10);
+      ctx.fillStyle='#ffc233'; ctx.fillRect(bx-60,40,120*Math.max(0,bo.hp/bo.maxHp),10);
+      ctx.strokeStyle='#ffc233'; ctx.lineWidth=1; ctx.strokeRect(bx-60,40,120,10);
+      ctx.fillStyle='#ffc233'; ctx.font='9px "Press Start 2P"'; ctx.textAlign='center';
+      ctx.fillText('THE PAYER', bx, 32);
+      drawGremlinBody(bo.x, bo.y, bo.w, bo.h, bo.color, bo.flash>0, bo.seed, true);
+    }
+  }
+}
+
+function wrapText(text,cx,y,maxW,lh,maxLines){
+  const words=text.split(' ');
+  let line='', lines=[];
+  for(const w of words){
+    const test=line? line+' '+w : w;
+    if(ctx.measureText(test).width>maxW && line){ lines.push(line); line=w; }
+    else line=test;
+  }
+  if(line) lines.push(line);
+  if(lines.length>maxLines){ lines=lines.slice(0,Math.max(1,maxLines)); lines[lines.length-1]+='…'; }
+  lines.forEach((l,i)=>ctx.fillText(l,cx,y+i*lh));
+}
+
+/* --- the Red Sky remediation bot --- */
+function drawBot(p){
+  const t=performance.now();
+  const flying=!p.onGround;
+  const bob= p.onGround && p.vx!==0 ? Math.sin(t/90)*1.5 : (flying? Math.sin(t/200)*2:0);
+  const x=p.x, y=p.y+bob;
+  const hurt=p.hurtCd>30 && Math.floor(t/60)%2===0;
+  ctx.save();
+  if(p.face<0){ ctx.translate(x+p.w,0); ctx.scale(-1,1); ctx.translate(-x,0); }
+  if(hurt) ctx.globalAlpha=0.5;
+
+  if(flying || keys.thrust){
+    ctx.fillStyle='rgba(255,150,40,.9)';
+    const fl=6+Math.random()*8;
+    ctx.beginPath(); ctx.moveTo(x+7,y+BOT_H); ctx.lineTo(x+13,y+BOT_H); ctx.lineTo(x+10,y+BOT_H+fl); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x+21,y+BOT_H); ctx.lineTo(x+27,y+BOT_H); ctx.lineTo(x+24,y+BOT_H+fl); ctx.fill();
+    ctx.fillStyle='rgba(39,232,255,.7)';
+    ctx.fillRect(x+8,y+BOT_H,4,3); ctx.fillRect(x+22,y+BOT_H,4,3);
+  }
+  ctx.fillStyle='#9aa7c7';
+  ctx.fillRect(x+7,y+30,6,10);
+  ctx.fillRect(x+21,y+30,6,10);
+  ctx.fillStyle='#f2f5fb'; ctx.fillRect(x+3,y+14,28,18);
+  ctx.fillStyle='#e8473f'; ctx.fillRect(x+3,y+14,28,4);
+  ctx.fillStyle='#e8473f';
+  ctx.beginPath(); ctx.arc(x+17,y+24,5.5,0,7); ctx.fill();
+  ctx.fillStyle='#ffd9d6'; ctx.fillRect(x+13,y+22,8,2);
+  ctx.fillStyle='#9aa7c7'; ctx.fillRect(x+26,y+18,10,7);
+  ctx.fillStyle='#27e8ff'; ctx.fillRect(x+34,y+19,4,5);
+  if(p.fireCd>FIRE_CD-4){ ctx.fillStyle='#ffffff'; ctx.fillRect(x+36,y+18,6,7); }
+  ctx.fillStyle='#c9d2e6'; ctx.fillRect(x-1,y+18,6,9);
+  ctx.fillStyle='#f2f5fb';
+  ctx.beginPath();
+  ctx.moveTo(x+6,y+14); ctx.lineTo(x+6,y+4);
+  ctx.quadraticCurveTo(x+6,y,x+12,y); ctx.lineTo(x+24,y);
+  ctx.quadraticCurveTo(x+30,y,x+30,y+4); ctx.lineTo(x+30,y+14); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#04102a'; ctx.fillRect(x+10,y+4,18,7);
+  ctx.fillStyle='#27e8ff';
+  const eye=Math.sin(t/500)>0.95? 1:4;
+  ctx.fillRect(x+15,y+5.5,5,eye+1);
+  ctx.fillRect(x+22,y+5.5,4,eye+1);
+  ctx.fillStyle='#9aa7c7'; ctx.fillRect(x+17,y-7,2,7);
+  ctx.fillStyle= Math.floor(t/400)%2? '#e8473f':'#ff8a84';
+  ctx.beginPath(); ctx.arc(x+18,y-8,3,0,7); ctx.fill();
+  ctx.restore();
+}
+
+/* --- ugly denial gremlins: lumpy bipeds with arms, legs, warts, snaggleteeth --- */
+function shade(hex,f){
+  const n=parseInt(hex.slice(1),16);
+  const r=Math.max(0,Math.min(255,((n>>16)&255)*f)),
+        g=Math.max(0,Math.min(255,((n>>8)&255)*f)),
+        b=Math.max(0,Math.min(255,(n&255)*f));
+  return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')';
+}
+function drawGremlin(gr){
+  drawGremlinBody(gr.x, gr.y, gr.w, gr.h, gr.color, gr.flash>0, gr.seed, false, gr, gr.accent);
+  // hp pips so squadron damage reads clearly
+  ctx.fillStyle='#ffc233';
+  for(let i=0;i<Math.min(4,gr.hp);i++) ctx.fillRect(gr.x+gr.w/2-2-(gr.hp-1)*3+i*6, gr.y-10, 4,4);
+}
+
+/* --- flying goblin denial codes: bat wings, claws, and a CARC tag --- */
+function drawFlyer(gr){
+  const t=performance.now();
+  const x=gr.x, y=gr.y, w=gr.w, h=gr.h;
+  const dark=shade(gr.color,0.55);
+  const wf=Math.sin(t/70+gr.seed)*9;
+  ctx.save();
+  if(gr.flash>0) ctx.globalAlpha=0.45;
+  // bat wings
+  ctx.fillStyle='rgba(0,0,0,.001)';
+  ctx.fillStyle=dark;
+  ctx.beginPath();
+  ctx.moveTo(x+4,y+8); ctx.lineTo(x-14,y-2-wf); ctx.lineTo(x-7,y+8-wf*0.4); ctx.lineTo(x-15,y+13-wf); ctx.lineTo(x+4,y+13);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x+w-4,y+8); ctx.lineTo(x+w+14,y-2+wf); ctx.lineTo(x+w+7,y+8+wf*0.4); ctx.lineTo(x+w+15,y+13+wf); ctx.lineTo(x+w-4,y+13);
+  ctx.fill();
+  // squat goblin body
+  ctx.fillStyle=gr.color;
+  ctx.beginPath(); ctx.ellipse(x+w/2,y+h/2,w*0.42,h*0.46,0,0,7); ctx.fill();
+  // pointy goblin ears — accent colored
+  ctx.fillStyle=gr.accent||dark;
+  ctx.beginPath(); ctx.moveTo(x+4,y+5); ctx.lineTo(x-3,y-4); ctx.lineTo(x+8,y+1); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x+w-4,y+5); ctx.lineTo(x+w+3,y-4); ctx.lineTo(x+w-8,y+1); ctx.fill();
+  // beady eyes + sneer
+  ctx.fillStyle='#fff8d6';
+  ctx.beginPath(); ctx.arc(x+w*0.36,y+h*0.36,2.6,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+w*0.64,y+h*0.36,2.6,0,7); ctx.fill();
+  ctx.fillStyle='#b1184a';
+  ctx.fillRect(x+w*0.33,y+h*0.34,2.4,2.4); ctx.fillRect(x+w*0.61,y+h*0.34,2.4,2.4);
+  ctx.fillStyle='#1a0a14'; ctx.fillRect(x+w*0.3,y+h*0.62,w*0.4,2.5);
+  // dangling claws
+  ctx.strokeStyle=dark; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x+w*0.35,y+h-2); ctx.lineTo(x+w*0.32,y+h+5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+w*0.65,y+h-2); ctx.lineTo(x+w*0.68,y+h+5); ctx.stroke();
+  // the denial code tag it carries
+  ctx.fillStyle='rgba(8,8,34,.92)';
+  const tag=gr.code, tw=tag.length*7+8;
+  ctx.fillRect(x+w/2-tw/2, y+h+6, tw, 13);
+  ctx.strokeStyle=gr.accent||gr.color; ctx.lineWidth=1;
+  ctx.strokeRect(x+w/2-tw/2, y+h+6, tw, 13);
+  ctx.fillStyle='#ff2d6f'; ctx.font='bold 10px "IBM Plex Mono"'; ctx.textAlign='center';
+  ctx.fillText(tag, x+w/2, y+h+16);
+  ctx.restore();
+  // hp pips
+  ctx.fillStyle='#ffc233';
+  for(let i=0;i<Math.min(4,gr.hp);i++) ctx.fillRect(x+w/2-2-(gr.hp-1)*3+i*6, y-14, 4,4);
+}
+
+/* --- squadron drone: mini Red Sky guardian --- */
+function drawDrone(d){
+  const t=performance.now();
+  const x=d.x, y=d.y;
+  ctx.save();
+  ctx.globalAlpha=d.alpha;
+  // lock-on telegraph: dashed line + spinning reticle while tracking
+  if(d.target && !d.target.dead){
+    const tx=d.target.x+d.target.w/2, ty=d.target.y+d.target.h/2;
+    const k=Math.min(1,d.lockT/50);
+    ctx.setLineDash([5,7]);
+    ctx.lineDashOffset=-t/30;
+    ctx.strokeStyle='rgba(232,71,63,'+(0.25+0.45*k)+')';
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x+8,y+8); ctx.lineTo(tx,ty); ctx.stroke();
+    ctx.setLineDash([]);
+    // reticle box rotates and tightens as the lock completes
+    const r=16-7*k;
+    ctx.save();
+    ctx.translate(tx,ty); ctx.rotate(t/400);
+    ctx.strokeStyle= k>=1? '#fff1ef':'#e8473f';
+    ctx.lineWidth=2;
+    ctx.strokeRect(-r,-r,r*2,r*2);
+    ctx.restore();
+    // charge ring
+    ctx.strokeStyle='#ffc233'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(tx,ty,r+6,-Math.PI/2,-Math.PI/2+k*Math.PI*2); ctx.stroke();
+  }
+  // guard beam
+  if(d.beam){
+    ctx.lineCap='round';
+    ctx.strokeStyle='rgba(232,71,63,.35)'; ctx.lineWidth=8;
+    ctx.beginPath(); ctx.moveTo(x+8,y+8); ctx.lineTo(d.beam.tx,d.beam.ty); ctx.stroke();
+    ctx.strokeStyle='#e8473f'; ctx.lineWidth=3.5;
+    ctx.beginPath(); ctx.moveTo(x+8,y+8); ctx.lineTo(d.beam.tx,d.beam.ty); ctx.stroke();
+    ctx.strokeStyle='#fff1ef'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x+8,y+8); ctx.lineTo(d.beam.tx,d.beam.ty); ctx.stroke();
+  }
+  const hum=Math.sin(t/110+d.idx)*1.3;
+  ctx.fillStyle='rgba(39,232,255,.7)';
+  ctx.fillRect(x+2,y+13+hum,2.5,3+Math.random()*3);
+  ctx.fillRect(x+10,y+13+hum,2.5,3+Math.random()*3);
+  ctx.fillStyle='#e8473f';
+  ctx.beginPath(); ctx.arc(x+7,y+7+hum,7.5,0,7); ctx.fill();
+  ctx.fillStyle='#f2f5fb';
+  ctx.beginPath(); ctx.arc(x+7,y+7+hum,7.5,Math.PI,0); ctx.fill();
+  ctx.fillStyle='#04102a'; ctx.fillRect(x+3,y+5.5+hum,8,3.5);
+  ctx.fillStyle= d.beam? '#fff1ef':'#27e8ff';
+  ctx.fillRect(x+4.5,y+6.5+hum,5,1.8);
+  ctx.fillStyle='#e8473f'; ctx.fillRect(x+6.2,y-2.5+hum,1.6,3.5);
+  ctx.restore();
+}
+function drawGremlinBody(x,y,w,h,color,flashing,seed,isBoss,gr,accent){
+  const t=performance.now();
+  const s=w/24;                            // scale relative to base gremlin
+  const dark=shade(color,0.55), lite=accent||shade(color,1.35);
+  const moving= gr? Math.abs(gr.vx)>0.2 : true;
+  const air= gr? !gr.onGround : false;
+  const swing= moving? Math.sin(t/110+seed)*5*s : Math.sin(t/600+seed)*1.5*s;
+  ctx.save();
+  if(flashing) ctx.globalAlpha=0.45;
+
+  // skinny legs — splayed wide when airborne (mid-jump)
+  ctx.strokeStyle=dark; ctx.lineWidth=3*s; ctx.lineCap='round';
+  const hipY=y+h-10*s, footY=y+h;
+  if(air){
+    ctx.beginPath(); ctx.moveTo(x+7*s,hipY); ctx.lineTo(x+1*s,footY-3*s); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+w-7*s,hipY); ctx.lineTo(x+w-1*s,footY-3*s); ctx.stroke();
+  }else{
+    ctx.beginPath(); ctx.moveTo(x+7*s,hipY); ctx.lineTo(x+7*s-swing,footY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+w-7*s,hipY); ctx.lineTo(x+w-7*s+swing,footY); ctx.stroke();
+  }
+  // clawed feet
+  ctx.fillStyle=dark;
+  ctx.fillRect(x+5*s-(air?6*s:swing),footY-2*s,7*s,3*s);
+  ctx.fillRect(x+w-12*s+(air?6*s:swing),footY-2*s,7*s,3*s);
+
+  // lumpy hunched body
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.ellipse(x+w/2, y+h*0.52, w*0.5, h*0.42, 0, 0, 7);
+  ctx.fill();
+  // hunch lump + belly lump
+  ctx.beginPath(); ctx.ellipse(x+w*0.32, y+h*0.28, w*0.26, h*0.2, -0.5, 0, 7); ctx.fill();
+  ctx.fillStyle=lite;
+  ctx.beginPath(); ctx.ellipse(x+w/2, y+h*0.66, w*0.32, h*0.22, 0, 0, 7); ctx.fill();
+
+  // flailing arms with claws
+  ctx.strokeStyle=dark; ctx.lineWidth=3*s;
+  const flail=Math.sin(t/95+seed*2)*8*s;
+  ctx.beginPath(); ctx.moveTo(x+3*s,y+h*0.42);
+  ctx.lineTo(x-5*s, y+h*0.28-flail); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+w-3*s,y+h*0.42);
+  ctx.lineTo(x+w+5*s, y+h*0.28+flail); ctx.stroke();
+  ctx.fillStyle=dark;
+  ctx.fillRect(x-8*s, y+h*0.26-flail, 4*s,4*s);
+  ctx.fillRect(x+w+3*s, y+h*0.26+flail, 4*s,4*s);
+
+  // crooked horns — accent colored
+  ctx.fillStyle=lite;
+  ctx.beginPath(); ctx.moveTo(x+5*s,y+4*s); ctx.lineTo(x+1*s,y-6*s); ctx.lineTo(x+9*s,y+1*s); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x+w-5*s,y+4*s); ctx.lineTo(x+w-1*s,y-4*s); ctx.lineTo(x+w-9*s,y+1*s); ctx.fill();
+
+  // mismatched bug eyes — one big, one small, both bloodshot
+  ctx.fillStyle='#fff8d6';
+  ctx.beginPath(); ctx.arc(x+w*0.36, y+h*0.26, 5.5*s, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+w*0.68, y+h*0.22, 3.2*s, 0, 7); ctx.fill();
+  ctx.fillStyle='#b1184a';
+  const look= gr&&world? Math.sign(world.player.x-(x+w/2))*1.5*s : 0;
+  ctx.beginPath(); ctx.arc(x+w*0.36+look, y+h*0.26, 2.4*s, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+w*0.68+look, y+h*0.22, 1.6*s, 0, 7); ctx.fill();
+
+  // jagged snaggletooth grin
+  ctx.fillStyle='#1a0a14';
+  ctx.fillRect(x+w*0.22, y+h*0.44, w*0.56, 4*s);
+  ctx.fillStyle='#fff8d6';
+  for(let i=0;i<4;i++){
+    const tx=x+w*0.24+i*w*0.14, up=i%2===0;
+    ctx.beginPath();
+    ctx.moveTo(tx,y+h*0.44+(up?0:4*s));
+    ctx.lineTo(tx+3*s,y+h*0.44+(up?5*s:-1*s));
+    ctx.lineTo(tx+6*s,y+h*0.44+(up?0:4*s));
+    ctx.fill();
+  }
+
+  // warts
+  ctx.fillStyle=dark;
+  ctx.beginPath(); ctx.arc(x+w*0.2,y+h*0.6,1.8*s,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+w*0.78,y+h*0.5,1.4*s,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+w*0.6,y+h*0.78,1.6*s,0,7); ctx.fill();
+
+  // boss extras: gold crown + stamped tie
+  if(isBoss){
+    ctx.fillStyle='#ffc233';
+    ctx.beginPath();
+    ctx.moveTo(x+w*0.2,y-2*s); ctx.lineTo(x+w*0.2,y-12*s); ctx.lineTo(x+w*0.35,y-5*s);
+    ctx.lineTo(x+w*0.5,y-14*s); ctx.lineTo(x+w*0.65,y-5*s); ctx.lineTo(x+w*0.8,y-12*s); ctx.lineTo(x+w*0.8,y-2*s);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#e8473f';
+    ctx.beginPath(); ctx.moveTo(x+w/2,y+h*0.56); ctx.lineTo(x+w/2-4*s,y+h*0.7);
+    ctx.lineTo(x+w/2,y+h*0.84); ctx.lineTo(x+w/2+4*s,y+h*0.7); ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* --- the AI companion drone & Red Sky laser(s) --- */
+function drawAI(){
+  const ai=world.ai, t=performance.now();
+  if(ai.phase==='fire'){
+    const x1=ai.x+14, y1=ai.y+8;
+    const grow=Math.min(1, ai.t/6);
+    const beams=[];
+    if(ai.mode==='wall'){
+      const g=ai.gate, seg=ai.seg;
+      beams.push({x:g.wallX+6, y:groundY()-(seg.lvl+0.5)*g.lvlGap, big:true});
+    }else{
+      for(const tg of ai.targets){
+        if(tg.kind==='boss') beams.push({x:tg.g.boss.x+tg.g.boss.w/2, y:tg.g.boss.y+tg.g.boss.h/2, big:true});
+        else if(!tg.gr.dead || ai.t<12) beams.push({x:tg.gr.x+tg.gr.w/2, y:tg.gr.y+tg.gr.h/2, big:false});
+      }
+    }
+    ctx.save();
+    ctx.lineCap='round';
+    for(const bm of beams){
+      const wob=Math.sin(t/40+bm.x)*2;
+      ctx.strokeStyle='rgba(232,71,63,.30)'; ctx.lineWidth=((bm.big?20:12)+wob)*grow;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(bm.x,bm.y); ctx.stroke();
+      ctx.strokeStyle='#e8473f'; ctx.lineWidth=((bm.big?10:5)+wob*0.5)*grow;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(bm.x,bm.y); ctx.stroke();
+      ctx.strokeStyle='#fff1ef'; ctx.lineWidth=(bm.big?3.5:2)*grow;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(bm.x,bm.y); ctx.stroke();
+      ctx.fillStyle='rgba(232,71,63,'+(0.5+0.4*Math.random())+')';
+      ctx.beginPath(); ctx.arc(bm.x,bm.y,((bm.big?14:9)+Math.random()*8)*grow,0,7); ctx.fill();
+    }
+    ctx.restore();
+  }
+  // the drone
+  const x=ai.x, y=ai.y;
+  const hum=Math.sin(t/120)*1.2;
+  ctx.save();
+  ctx.fillStyle='rgba(39,232,255,.7)';
+  ctx.fillRect(x+2,y+15+hum,3,4+Math.random()*3);
+  ctx.fillRect(x+11,y+15+hum,3,4+Math.random()*3);
+  ctx.fillStyle='#e8473f';
+  ctx.beginPath(); ctx.arc(x+8,y+8+hum,9,0,7); ctx.fill();
+  ctx.fillStyle='#f2f5fb';
+  ctx.beginPath(); ctx.arc(x+8,y+8+hum,9,Math.PI,0); ctx.fill();
+  ctx.fillStyle='#04102a'; ctx.fillRect(x+3,y+6+hum,10,4);
+  ctx.fillStyle= ai.phase==='fire'? '#fff1ef':'#27e8ff';
+  ctx.fillRect(x+5,y+7+hum,6,2);
+  ctx.fillStyle='#e8473f'; ctx.fillRect(x+7,y-3+hum,2,4);
+  ctx.beginPath(); ctx.arc(x+8,y-4+hum,2,0,7); ctx.fill();
+  ctx.restore();
+}
+
+/* =====================  INPUT  ===================== */
+document.addEventListener('keydown',e=>{
+  if($('leadmodal').classList.contains('open')) return;   // typing in the lead form
+  const ae=document.activeElement;
+  if(ae && (ae.tagName==='INPUT'||ae.tagName==='SELECT'||ae.tagName==='TEXTAREA')) return;  // typing elsewhere (title email)
+  if(e.key==='ArrowLeft'||e.key==='a'){ keys.left=true; e.preventDefault(); }
+  else if(e.key==='ArrowRight'||e.key==='d'){ keys.right=true; e.preventDefault(); }
+  else if(e.key==='ArrowUp'||e.key==='w'){ keys.thrust=true; e.preventDefault(); }
+  else if(e.key==='e'||e.key==='E'||e.key==='q'||e.key==='Q'){
+    e.preventDefault();
+    if(world && !world.paused && !e.repeat) useAI();
+  }
+  else if(e.key===' '||e.key==='f'||e.key==='F'){
+    e.preventDefault();
+    try{
+      if($('scr-title').classList.contains('active')) startGame();
+      else if($('scr-stage').classList.contains('active')) beginStage();
+      else if($('scr-end').classList.contains('active')) startGame();
+      else if(world){
+        if(world.paused){ dismissToast(); }
+        else keys.fire=true;
+      }
+    }catch(err){ __showErr((err&&err.message)||String(err)); }
+  }
+});
+document.addEventListener('keyup',e=>{
+  if($('leadmodal').classList.contains('open')) return;
+  const ae=document.activeElement;
+  if(ae && (ae.tagName==='INPUT'||ae.tagName==='SELECT'||ae.tagName==='TEXTAREA')) return;
+  if(e.key==='ArrowLeft'||e.key==='a') keys.left=false;
+  else if(e.key==='ArrowRight'||e.key==='d') keys.right=false;
+  else if(e.key==='ArrowUp'||e.key==='w') keys.thrust=false;
+  else if(e.key===' '||e.key==='f'||e.key==='F') keys.fire=false;
+});
+function bindHold(id,on,off){
+  const b=$(id);
+  b.addEventListener('pointerdown',e=>{ e.preventDefault(); b.classList.add('held'); on(); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>
+    b.addEventListener(ev,()=>{ b.classList.remove('held'); off&&off(); }));
+}
+bindHold('btnL',()=>keys.left=true, ()=>keys.left=false);
+bindHold('btnR',()=>keys.right=true,()=>keys.right=false);
+bindHold('btnJ',()=>keys.thrust=true,()=>keys.thrust=false);
+bindHold('btnF',()=>keys.fire=true, ()=>keys.fire=false);
+$('aibtn').addEventListener('pointerdown',e=>{ e.preventDefault(); useAI(); });
+/* robust tap binding for menu buttons: handles click + touch, never double-fires,
+   and avoids inline-onclick (blocked by some embed CSPs) */
+function tap(el,fn){
+  let last=0;
+  const run=()=>{ try{ fn(); }catch(err){ __showErr((err&&err.message)||String(err)); } };
+  el.addEventListener('touchend',e=>{ e.preventDefault(); last=Date.now(); run(); },{passive:false});
+  el.addEventListener('click',()=>{ if(Date.now()-last<500) return; run(); });
+}
+tap($('btn-boot'),  startGame);
+tap($('btn-engage'),beginStage);
+tap($('btn-replay'),startGame);
+tap($('mute'),      toggleMute);
+// title screen: collapsible how-to
+tap($('howtoggle'),()=>{
+  const h=$('howto');
+  h.classList.toggle('open');
+  $('howtoggle').textContent= h.classList.contains('open')? '▲ HIDE HOW TO PLAY':'▼ HOW TO PLAY';
+});
+// tap toast to dismiss early
+$('toast').addEventListener('pointerdown',dismissToast);
+</script>
+</body>
+</html>
