@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>DENIAL BLASTER — Revenue Cycle Quest</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@500;700&display=swap');
@@ -19,12 +19,22 @@
     --grid:#15205f;
   }
   *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-  html,body{ height:100%; overflow:hidden; background:#000; }
-  body{ font-family:'IBM Plex Mono','Courier New',monospace; color:var(--paper); user-select:none; -webkit-user-select:none; touch-action:manipulation; }
+  html{
+    height:100%; height:100dvh; overscroll-behavior:none; touch-action:none;
+    -webkit-text-size-adjust:100%; text-size-adjust:100%;
+  }
+  body{
+    min-height:100%; min-height:100dvh; min-height:-webkit-fill-available;
+    overflow:hidden; background:#000; touch-action:none;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    font-family:'IBM Plex Mono','Courier New',monospace; color:var(--paper);
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
+  }
   .px{ font-family:'Press Start 2P',monospace; }
 
   #crt{
     position:fixed; inset:0; display:flex; flex-direction:column; overflow:hidden;
+    min-height:100dvh; min-height:-webkit-fill-available; touch-action:none;
     background:radial-gradient(ellipse at 50% 30%, var(--crt-navy) 0%, var(--crt-deep) 70%);
   }
   #crt::before{
@@ -41,7 +51,7 @@
   .screen{
     position:absolute; inset:0; display:none; flex-direction:column; align-items:center;
     z-index:50; padding:14px; text-align:center;
-    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y;
   }
   .screen.active{ display:flex; }
   .panel{
@@ -56,20 +66,23 @@
     margin-top:18px; font-size:9px; letter-spacing:1px; color:var(--phosphor);
     cursor:pointer; text-decoration:underline;
   }
-  .howto{ display:none; }
+  .howto{
+    display:none; max-width:540px; width:94%; margin:14px auto 6px;
+    font-size:clamp(11px,2.8vw,12px); line-height:1.85; color:#9fb6d8; text-align:left;
+    border-left:3px solid var(--phosphor); padding-left:14px;
+  }
   .howto.open{ display:block; }
+  .howto b{ color:var(--paper); }
   .eyebrow{ font-size:9px; letter-spacing:3px; color:var(--amber); margin-bottom:18px; }
   h1.logo{
     font-size:clamp(24px,6.5vw,50px); line-height:1.25; color:var(--phosphor);
     text-shadow:0 0 12px rgba(39,232,255,.8), 4px 4px 0 #b1006b; margin-bottom:6px;
   }
   .logo small{ display:block; font-size:clamp(9px,2.2vw,15px); color:var(--cash); text-shadow:0 0 8px rgba(61,255,124,.7); margin-top:10px; letter-spacing:2px; }
-  .howto{ max-width:540px; width:94%; margin:14px auto 6px; font-size:12px; line-height:1.85; color:#9fb6d8; text-align:left; border-left:3px solid var(--phosphor); padding-left:14px; }
-  .howto b{ color:var(--paper); }
   .btn{
-    display:inline-block; margin-top:18px; cursor:pointer;
-    font-family:'Press Start 2P',monospace; font-size:13px;
-    color:#04102a; background:var(--cash); border:none; padding:16px 26px;
+    display:inline-block; margin-top:18px; cursor:pointer; max-width:100%;
+    font-family:'Press Start 2P',monospace; font-size:clamp(10px,2.8vw,13px);
+    color:#04102a; background:var(--cash); border:none; padding:clamp(12px,3vw,16px) clamp(16px,4vw,26px);
     box-shadow:0 0 18px rgba(61,255,124,.55), inset -4px -4px 0 rgba(0,0,0,.25); letter-spacing:1px;
   }
   .btn:active{ transform:translateY(2px); }
@@ -79,7 +92,8 @@
   .titleemail{
     width:92%; max-width:380px; margin-top:16px; padding:11px 12px;
     background:#101542; border:1px solid #2a3470; color:var(--paper);
-    font-family:'IBM Plex Mono',monospace; font-size:12.5px; text-align:center;
+    font-family:'IBM Plex Mono',monospace; font-size:16px; text-align:center;
+    touch-action:manipulation;
   }
   .titleemail:focus{ outline:2px solid var(--phosphor); }
   .titleemail::placeholder{ color:#5b6a96; }
@@ -148,16 +162,16 @@
   .leadbox input, .leadbox select{
     width:100%; margin-bottom:9px; padding:11px 12px;
     background:#101542; border:1px solid #2a3470; color:var(--paper);
-    font-family:'IBM Plex Mono',monospace; font-size:13px;
+    font-family:'IBM Plex Mono',monospace; font-size:16px; touch-action:manipulation;
   }
   .leadbox input:focus, .leadbox select:focus{ outline:2px solid var(--phosphor); }
   .leaderr{ color:var(--alert); font-size:11px; min-height:15px; margin-bottom:6px; }
   .leadclose{ margin-top:12px; font-size:11px; color:#7e93c4; text-align:center; cursor:pointer; text-decoration:underline; }
 
   /* ===== HUD ===== */
-  #hud{ display:none; z-index:20; position:relative; padding:8px 10px 4px; gap:6px; flex-direction:column; }
+  #hud{ display:none; z-index:20; position:relative; padding:8px 10px 4px; gap:6px; flex-direction:column; flex-shrink:0; }
   #hud.active{ display:flex; }
-  .hudrow{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .hudrow{ display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; }
   .stat{ font-size:9px; color:#7e93c4; letter-spacing:1px; }
   .stat b{ display:block; font-family:'Press Start 2P',monospace; font-size:clamp(10px,2.6vw,14px); margin-top:3px; }
   #score b{ color:var(--cash); text-shadow:0 0 8px rgba(61,255,124,.6);}
@@ -179,9 +193,9 @@
   .timerlabel{ font-size:8px; color:#7e93c4; letter-spacing:1px; margin-top:3px; }
 
   /* ===== CANVAS ===== */
-  #stagewrap{ position:relative; flex:1; display:none; z-index:15; touch-action:none; }
+  #stagewrap{ position:relative; flex:1 1 auto; display:none; z-index:15; touch-action:none; min-height:0; }
   #stagewrap.active{ display:block; }
-  canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; image-rendering:pixelated; image-rendering:crisp-edges; }
 
   /* ===== USE AI button — top-left of the playfield ===== */
   #aibtn{
@@ -232,18 +246,19 @@
   #toastgo{ font-size:9px; color:#7e93c4; margin-top:10px; letter-spacing:1px; font-family:'Press Start 2P',monospace;}
 
   /* ===== TOUCH CONTROLS ===== */
-  #controls{ display:none; z-index:25; position:relative; gap:8px; padding:8px 12px 14px; justify-content:space-between; touch-action:none; }
+  #controls{ display:none; z-index:25; position:relative; gap:8px; padding:8px 12px calc(14px + env(safe-area-inset-bottom)); justify-content:space-between; touch-action:none; flex-shrink:0; }
   #controls.active{ display:flex; }
-  .padgroup{ display:flex; gap:8px; }
+  .padgroup{ display:flex; gap:8px; flex:1; max-width:48%; }
   .ctl{
-    width:78px; padding:18px 0; text-align:center; cursor:pointer;
-    font-family:'Press Start 2P',monospace; font-size:13px;
+    flex:1; min-width:0; min-height:52px; padding:14px 0; text-align:center; cursor:pointer;
+    font-family:'Press Start 2P',monospace; font-size:clamp(10px,2.8vw,13px);
     border:2px solid var(--phosphor); color:var(--phosphor); background:rgba(8,14,58,.8);
+    touch-action:none; -webkit-user-select:none; user-select:none;
   }
   .ctl:active, .ctl.held{ background:rgba(39,232,255,.25); }
-  .ctl.fire{ border-color:var(--alert); color:var(--alert); width:88px; }
+  .ctl.fire{ border-color:var(--alert); color:var(--alert); }
   .ctl.fire:active, .ctl.fire.held{ background:rgba(255,45,111,.25); }
-  .ctl.fly{ border-color:var(--cash); color:var(--cash); width:88px; font-size:11px; }
+  .ctl.fly{ border-color:var(--cash); color:var(--cash); font-size:clamp(9px,2.4vw,11px); }
   .ctl.fly:active, .ctl.fly.held{ background:rgba(61,255,124,.25); }
 
   #mute{
@@ -258,6 +273,80 @@
     padding:8px 12px; cursor:pointer; word-break:break-word;
   }
   @media (prefers-reduced-motion: reduce){ .blink{ animation:none; } #aibtn.ready{ animation:none; } #aibtn.warn{ animation:none; border-color:var(--amber); } #aibtn.crit{ animation:none; } }
+
+  /* desktop: keyboard controls only */
+  @media (hover:hover) and (pointer:fine){
+    #controls.active{ display:none !important; }
+  }
+
+  /* phones & small tablets */
+  @media (max-width:600px){
+    #controls.active{
+      display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
+      padding:6px 8px calc(10px + env(safe-area-inset-bottom));
+    }
+    .padgroup{ display:contents; max-width:none; }
+    .ctl{ min-height:48px; padding:12px 0; font-size:clamp(9px,2.6vw,11px); }
+    .screen{ padding:10px 8px; }
+    .panel{ padding:12px 0; max-width:100%; }
+    .hudrow .stat{ flex:1 1 30%; min-width:72px; text-align:center; }
+    .stat{ font-size:8px; }
+    .stat b{ font-size:clamp(8px,2.4vw,11px); }
+    #qpanel{ padding:6px 8px; }
+    #hud{ padding:6px 8px 4px; }
+    .titleemail{ width:100%; font-size:clamp(11px,3vw,12.5px); }
+    .iqrow{ flex-direction:column; align-items:center; gap:10px; }
+    .iqbox b{ font-size:clamp(20px,6vw,26px); }
+    .report .cat span{ width:92px; font-size:clamp(6px,1.8vw,9px); }
+    .report .pct{ width:36px; font-size:10px; }
+    .cta-main{ font-size:clamp(9px,2.6vw,12px); padding:13px 16px; }
+    .cta-sm{ font-size:clamp(7px,2.2vw,9px); }
+    #aibtn{ top:6px; left:6px; min-width:0; max-width:42%; font-size:clamp(7px,2vw,10px); padding:6px 8px; }
+    #mute{ top:6px; right:6px; font-size:clamp(7px,2vw,10px); padding:5px 7px; }
+    #toast{ width:94%; top:36%; padding:12px; max-height:70dvh; overflow-y:auto; }
+    #toasthead{ font-size:clamp(8px,2.4vw,11px); }
+    #toastbody{ font-size:clamp(11px,3vw,12.5px); }
+    #toastgo{ font-size:clamp(7px,2vw,9px); }
+    .leadbox{ max-height:88dvh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+    .sharebtn{ font-size:clamp(6px,1.8vw,8px); padding:10px 11px; }
+  }
+
+  @media (max-width:380px){
+    h1.logo{ font-size:clamp(18px,5vw,24px); }
+    .keys{ display:none; }
+    .report .cat{ flex-wrap:wrap; }
+    .report .cat span{ width:100%; margin-bottom:2px; }
+    .report .barwrap{ min-width:0; }
+  }
+
+  /* landscape phones: reclaim vertical space for the playfield */
+  @media (max-height:520px) and (orientation:landscape){
+    #hud{ padding:4px 8px 2px; gap:4px; }
+    #qpanel{ padding:4px 8px; }
+    #qlabel, .timerlabel{ display:none; }
+    #qtext{ font-size:10px; margin-top:2px; line-height:1.3; max-height:2.6em; overflow:hidden; }
+    #qopts.show{ font-size:9px; line-height:1.35; max-height:3em; overflow:hidden; }
+    #timerwrap{ margin-top:4px; height:5px; }
+    .screen .panel{ padding:8px 0; }
+    .hook{ margin-top:8px; font-size:11px; }
+    .btn{ margin-top:10px; padding:10px 14px; }
+    #controls{ padding:4px 8px calc(6px + env(safe-area-inset-bottom)); }
+    .ctl{ min-height:44px; padding:10px 0; }
+    .endwrap{ padding:10px 0 16px; }
+    .bigword{ margin-bottom:8px; }
+    .rating{ margin:10px 0 2px; }
+  }
+
+  /* large desktops: centered play area */
+  @media (min-width:1024px){
+    #crt{
+      left:50%; transform:translateX(-50%);
+      width:min(1200px,100vw); max-width:1200px;
+      box-shadow:0 0 80px rgba(39,232,255,.12), 0 0 0 1px rgba(39,232,255,.08);
+    }
+    .panel{ max-width:620px; }
+    .endwrap{ max-width:560px; }
+  }
 </style>
 </head>
 <body>
@@ -423,6 +512,31 @@
   });
 })();
 function safeLog(){ try{ console.info.apply(console,arguments); }catch(e){} }
+/* block iOS pinch/double-tap zoom — main cause of touch getting "stuck" */
+(function preventMobileZoom(){
+  ['gesturestart','gesturechange','gestureend'].forEach(ev=>
+    document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+  document.addEventListener('touchmove',e=>{
+    if(e.touches.length>1) e.preventDefault();
+  },{passive:false});
+  let lastTouchEnd=0;
+  document.addEventListener('touchend',e=>{
+    const t=e.target;
+    if(t&&t.closest&&t.closest('input,select,textarea,.titleemail,.leadbox')) return;
+    const now=Date.now();
+    if(now-lastTouchEnd<=320){ e.preventDefault(); }
+    lastTouchEnd=now;
+  },{passive:false});
+})();
+/* robust tap binding: handles click + touch, never double-fires */
+function tap(el,fn){
+  if(!el) return;
+  let last=0;
+  const run=()=>{ try{ fn(); }catch(err){ __showErr((err&&err.message)||String(err)); } };
+  el.addEventListener('touchstart',e=>{ e.preventDefault(); },{passive:false});
+  el.addEventListener('touchend',e=>{ e.preventDefault(); last=Date.now(); run(); },{passive:false});
+  el.addEventListener('click',()=>{ if(Date.now()-last<500) return; run(); });
+}
 /* ============================================================================
    DENIAL BLASTER — MVP MARKETING BUILD (Red Sky Health)
    ----------------------------------------------------------------------------
@@ -456,7 +570,7 @@ function safeLog(){ try{ console.info.apply(console,arguments); }catch(e){} }
       TODO(prod): final hosted URL for og-tagged share page + leaderboard.
    ============================================================================ */
 const POV_URL='https://www.redskyhealth.com/#pov-request';        // TODO(prod)
-const GAME_URL='https://www.redskyhealth.com/denial-blaster';     // TODO(prod)
+const GAME_URL=location.href.split(/[?#]/)[0].replace(/index\.html?$/i,'').replace(/\/?$/,'/');
 const LEADS=[];                                                    // in-memory MVP store
 
 function getUTM(){
@@ -712,13 +826,32 @@ const $=id=>document.getElementById(id);
 const cv=$('cv'), ctx=cv.getContext('2d');
 let W=0,H=0,DPR=1;
 function resize(){
-  const r=$('stagewrap').getBoundingClientRect();
+  const wrap=$('stagewrap');
+  if(!wrap.classList.contains('active')) return;
+  const r=wrap.getBoundingClientRect();
   DPR=Math.min(2, window.devicePixelRatio||1);
-  W=Math.max(320,r.width); H=Math.max(240,r.height);
+  W=Math.max(320,Math.floor(r.width)); H=Math.max(200,Math.floor(r.height));
+  if(W===0||H===0) return;
   cv.width=W*DPR; cv.height=H*DPR;
   ctx.setTransform(DPR,0,0,DPR,0,0);
 }
-window.addEventListener('resize',resize);
+function releaseAllKeys(){
+  keys.left=keys.right=keys.thrust=keys.fire=false;
+  document.querySelectorAll('.ctl').forEach(el=>{
+    delete el.dataset.held;
+    el.classList.remove('held');
+  });
+}
+function syncLayout(){
+  document.documentElement.style.setProperty('--vh', ((window.visualViewport&&window.visualViewport.height)||window.innerHeight)*0.01+'px');
+  if(window.visualViewport && window.visualViewport.scale>1.01) releaseAllKeys();
+  resize();
+}
+window.addEventListener('resize',syncLayout);
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',syncLayout);
+  window.visualViewport.addEventListener('scroll',syncLayout);
+}
 
 const GROUND_H=56;
 const MOVE=2.7, GRAV=0.32, THRUST=-0.62, MAXFALL=6.2, MAXRISE=-4.6;
@@ -771,7 +904,7 @@ function showStageIntro(){
 function beginStage(){
   showScreen(null);
   ['hud','stagewrap','controls'].forEach(k=>$(k).classList.add('active'));
-  resize();
+  syncLayout();
   buildWorld(G.stage);
   if(!rafId){ lastT=performance.now(); rafId=requestAnimationFrame(loop); }
 }
@@ -1629,7 +1762,7 @@ function openCheckpoint(){
   $('leadmodal').classList.add('open');
   track('checkpoint_shown',{score:G.score});
 }
-$('ck-submit').addEventListener('click',()=>{
+tap($('ck-submit'),()=>{
   const email=$('ck-email').value.trim();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ $('ck-err').textContent='That email doesn\'t look valid.'; return; }
   G.leadEmail=email;
@@ -1639,7 +1772,7 @@ $('ck-submit').addEventListener('click',()=>{
   closeLead();
   showStageIntro();
 });
-$('ck-skip').addEventListener('click',()=>{
+tap($('ck-skip'),()=>{
   track('checkpoint_skipped',{score:G.score});
   closeLead();
   showStageIntro();
@@ -1676,7 +1809,7 @@ function endGame(won){
   else if(G.score>=3000) rating='DENIAL ANALYST IN TRAINING';
   else rating='DENIAL ROOKIE';
   // Denial IQ: accuracy-weighted, with completion + streak credit
-  const progress=Math.min(1,(G.stage+(won?0:0))/LEVELS.length);
+  const progress=Math.min(1, G.stage/LEVELS.length);
   const iq=Math.min(100, Math.round(acc*0.72 + progress*20 + Math.min(8,G.bestStreak)));
   const cats=G.catStats.map((c,i)=>({ name:CAT_NAMES[i], pct: c.picks? Math.round(c.hits/c.picks*100) : null }));
   LAST={ won, rating, iq, score:G.score, acc, cats, time:G.time,
@@ -1725,11 +1858,16 @@ function openLead(){
   $('leadmodal').classList.add('open');
   track('lead_open',{denialIQ:LAST?LAST.iq:null});
 }
-function closeLead(){ $('leadmodal').classList.remove('open'); }
-$('btn-lead').addEventListener('click',openLead);
-$('lf-cancel').addEventListener('click',closeLead);
-$('lf-done').addEventListener('click',closeLead);
-$('lf-submit').addEventListener('click',()=>{
+function closeLead(){
+  $('leadmodal').classList.remove('open');
+  $('checkform').style.display='none';
+  $('leadok').style.display='none';
+  $('leadform').style.display='block';
+}
+tap($('btn-lead'),openLead);
+tap($('lf-cancel'),closeLead);
+tap($('lf-done'),closeLead);
+tap($('lf-submit'),()=>{
   const name=$('lf-name').value.trim(), email=$('lf-email').value.trim(),
         org=$('lf-org').value.trim(), vol=$('lf-vol').value;
   if(!name||!email||!org){ $('lf-err').textContent='Name, work email, and organization are required.'; return; }
@@ -1743,7 +1881,7 @@ $('lf-submit').addEventListener('click',()=>{
 });
 
 /* ---------- shareable scorecard PNG ---------- */
-$('btn-card').addEventListener('click',()=>{
+tap($('btn-card'),()=>{
   if(!LAST) return;
   const c=document.createElement('canvas'); c.width=800; c.height=460;
   const x=c.getContext('2d');
@@ -1789,8 +1927,6 @@ $('btn-card').addEventListener('click',()=>{
   $('share-hint').textContent='Scorecard downloaded — share it on LinkedIn!';
   track('scorecard_download',{denialIQ:LAST.iq});
 });
-
-/* ---------- challenge & share row is built into the end screen by endGame() ---------- */
 
 /* =====================  RENDER  ===================== */
 function draw(){
@@ -2530,23 +2666,43 @@ document.addEventListener('keyup',e=>{
 });
 function bindHold(id,on,off){
   const b=$(id);
-  b.addEventListener('pointerdown',e=>{ e.preventDefault(); b.classList.add('held'); on(); });
-  ['pointerup','pointerleave','pointercancel'].forEach(ev=>
-    b.addEventListener(ev,()=>{ b.classList.remove('held'); off&&off(); }));
+  if(!b) return;
+  const press=(e)=>{
+    e.preventDefault();
+    if(b.dataset.held) return;
+    b.dataset.held='1';
+    b.classList.add('held');
+    on();
+    if(b.setPointerCapture && e.pointerId!=null){
+      try{ b.setPointerCapture(e.pointerId); }catch(_){}
+    }
+  };
+  const release=(e)=>{
+    if(e && e.pointerId!=null && b.hasPointerCapture && b.hasPointerCapture(e.pointerId)){
+      try{ b.releasePointerCapture(e.pointerId); }catch(_){}
+    }
+    if(!b.dataset.held) return;
+    delete b.dataset.held;
+    b.classList.remove('held');
+    off&&off();
+  };
+  b.addEventListener('pointerdown',press);
+  b.addEventListener('pointerup',release);
+  b.addEventListener('pointercancel',release);
+  b.addEventListener('lostpointercapture',release);
 }
 bindHold('btnL',()=>keys.left=true, ()=>keys.left=false);
 bindHold('btnR',()=>keys.right=true,()=>keys.right=false);
 bindHold('btnJ',()=>keys.thrust=true,()=>keys.thrust=false);
 bindHold('btnF',()=>keys.fire=true, ()=>keys.fire=false);
-$('aibtn').addEventListener('pointerdown',e=>{ e.preventDefault(); useAI(); });
-/* robust tap binding for menu buttons: handles click + touch, never double-fires,
-   and avoids inline-onclick (blocked by some embed CSPs) */
-function tap(el,fn){
-  let last=0;
-  const run=()=>{ try{ fn(); }catch(err){ __showErr((err&&err.message)||String(err)); } };
-  el.addEventListener('touchend',e=>{ e.preventDefault(); last=Date.now(); run(); },{passive:false});
-  el.addEventListener('click',()=>{ if(Date.now()-last<500) return; run(); });
-}
+window.addEventListener('blur',releaseAllKeys);
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) releaseAllKeys(); });
+document.addEventListener('touchcancel',releaseAllKeys,{passive:true});
+(function(){
+  let aiLast=0;
+  function aiTap(e){ e.preventDefault(); if(Date.now()-aiLast<400) return; aiLast=Date.now(); useAI(); }
+  $('aibtn').addEventListener('pointerdown',aiTap);
+})();
 tap($('btn-boot'),  startGame);
 tap($('btn-engage'),beginStage);
 tap($('btn-replay'),startGame);
@@ -2559,6 +2715,7 @@ tap($('howtoggle'),()=>{
 });
 // tap toast to dismiss early
 $('toast').addEventListener('pointerdown',dismissToast);
+syncLayout();
 </script>
 </body>
 </html>
